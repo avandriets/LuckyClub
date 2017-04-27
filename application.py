@@ -1,5 +1,4 @@
 # Run a test server.
-# from app import app
-from app import create_app
+from lucky_club import app
 
-create_app('config').run(host='127.0.0.1', port=8000)
+app.run(host='127.0.0.1', port=8000)

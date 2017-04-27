@@ -5,8 +5,8 @@ from flask import render_template
 from flask import url_for
 from flask_login import login_required
 from werkzeug.security import gen_salt
-from app.database import db_session
-from app.users_manager.models import current_user, Client
+from lucky_club.database import db_session
+from lucky_club.users_manager.models import current_user, Client
 
 blueprint_applications = Blueprint('oauth2', __name__)
 

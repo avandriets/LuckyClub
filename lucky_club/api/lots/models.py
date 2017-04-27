@@ -2,7 +2,7 @@ import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean, Numeric
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
-from app.database import Base
+from lucky_club.database import Base
 
 
 class Lot(Base):

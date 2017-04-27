@@ -2,10 +2,10 @@ from jwt import ExpiredSignatureError
 from datetime import timedelta, datetime
 from flask import Blueprint
 from flask_oauthlib.provider import OAuth2Provider
-from app import InvalidUsage
-from app.database import db_session
-from app.jwt_parser import JwtParser
-from app.users_manager.models import current_user, Client, Grant, Token, User
+from lucky_club.database import db_session
+from lucky_club.error_helper import InvalidUsage
+from lucky_club.jwt_parser import JwtParser
+from lucky_club.users_manager.models import current_user, Client, Grant, Token, User
 
 blueprint = Blueprint('my_oauth2_provider', __name__)
 

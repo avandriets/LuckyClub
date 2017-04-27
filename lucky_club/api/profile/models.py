@@ -1,19 +1,17 @@
 import datetime
-from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
-from app.database import Base, db_session
+from lucky_club.database import Base
 
 
-class Category(Base):
-    __tablename__ = 'Category'
+class Profile(Base):
+    __tablename__ = 'Profile'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    description = Column(Text, nullable=False)
-    picture_url = Column(String(500), nullable=True)
-    parent_id = Column(ForeignKey('Category.id'))
-    parent = relationship('Category')
+    first_name = Column(String(255), nullable=False)
+    last_name = Column(String(255), nullable=False)
+    photo_url = Column(String(500), nullable=True)
     user_id = Column(ForeignKey('User.id'))
     user = relationship('User')
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -24,10 +22,10 @@ class Category(Base):
         """Return object data in easily serializeable format"""
         return {
             'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'picture_url': self.picture_url,
-            'parent_id': self.parent_id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'photo_url': self.photo_url,
+            'user_id': self.user_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

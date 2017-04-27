@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from flask import request
-from app import InvalidUsage
-from app import my_oauth2_provider
+from lucky_club.error_helper import InvalidUsage
+from lucky_club.my_oauth2_provider import my_oauth2_provider
 
 blueprint_users = Blueprint('profile', __name__)
 

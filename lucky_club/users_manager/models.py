@@ -3,7 +3,7 @@ from flask_login import UserMixin
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
-from app.database import Base, db_session
+from lucky_club.database import Base, db_session
 
 
 class User(UserMixin, Base):

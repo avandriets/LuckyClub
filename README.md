@@ -8,7 +8,7 @@ There are used such technologies as Flask, SQLAlchemy, Firebase, OAuth2
 3. Set grant type that you need to  users_manager/models.py Client.allowed_grant_types
 4. Start the project
 ```
-$ python /vagrant/catalog/application.py
+$ python application.py
 ```
 5. Make administrative account to get access to site (kind of admin panel)
  After first attempt of login an user account appears in the database, put 1 to the field "admin_user",
@@ -66,4 +66,10 @@ access_token : [YOUR TOKEN]
 4. Help
 ```
 [env catalog]/bin/python3 manage.py db --help
+```
+
+## How to init database
+```
+export FLASK_APP=lucky_club/lucky_club.py
+flask initdb
 ```

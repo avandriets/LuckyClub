@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import current_app
 from flask import render_template
-from app.users_manager.models import current_user
+from lucky_club.users_manager.models import current_user
 
 blueprint_main = Blueprint('main_page', __name__)
 

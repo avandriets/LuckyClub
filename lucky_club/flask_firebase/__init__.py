@@ -1,7 +1,7 @@
 from flask import Blueprint, abort, current_app, redirect, request, render_template, url_for, jsonify
 from urllib.parse import urlparse
 
-from app.jwt_parser import JwtParser
+from lucky_club.jwt_parser import JwtParser
 
 blueprint = Blueprint('firebase_auth', __name__)
 

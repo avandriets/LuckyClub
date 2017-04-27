@@ -12,6 +12,6 @@ Base.query = db_session.query_property()
 
 
 def init_db():
-    # Add other modules here
-    import app.users_manager.models
+    # TODO Add other modules here
+    import lucky_club.users_manager.models
     Base.metadata.create_all(bind=engine)
