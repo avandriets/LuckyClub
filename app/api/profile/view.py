@@ -3,21 +3,33 @@ from flask import request
 from app import InvalidUsage
 from app import my_oauth2_provider
 
-blueprint_users = Blueprint('users', __name__)
+blueprint_users = Blueprint('profile', __name__)
 
 
-@blueprint_users.route('/me')
+@blueprint_users.route('/me', methods=['GET', 'PUT'])
 @my_oauth2_provider.require_oauth()
 def me():
-    # user = request.oauth.user
+    # TODO get, edit profile function
     try:
-        # user = current_user()
         user = request.oauth.user
         response = jsonify(username=user.name)
         return response
     except:
         raise InvalidUsage('There occurs an error.', status_code=500)
 
+
+@blueprint_users.route('/get-favorites')
+@my_oauth2_provider.require_oauth()
+def get_favorites():
+    # TODO add get_favorites
+    pass
+
+
+@blueprint_users.route('/get-balance')
+@my_oauth2_provider.require_oauth()
+def get_balance():
+    # TODO add get_favorites
+    pass
 
 # @blueprint_users.route('/restaurants/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 # def restaurant_handler(id):

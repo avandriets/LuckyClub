@@ -17,7 +17,7 @@ login_manager = LoginManager()
 auth = FirebaseAuth()
 
 
-def create_app(config_filename):
+def create_app(config_filename='config'):
     app = Flask(__name__)
     app.config.from_object(config_filename)
 
@@ -34,8 +34,14 @@ def create_app(config_filename):
 
     csrf.exempt(my_oauth2_provider.blueprint)
 
-    from app.api.users.view import blueprint_users
-    app.register_blueprint(blueprint_users, url_prefix='/api/users')
+    from app.api.profile.view import blueprint_users
+    app.register_blueprint(blueprint_users, url_prefix='/api/profile')
+
+    @app.cli.command('initdb')
+    def initdb_command():
+        """Creates the database tables."""
+        init_db()
+        print('Initialized the database.')
 
     @app.context_processor
     def site_name():
@@ -98,8 +104,7 @@ def create_app(config_filename):
 
     return app
 
-
-init_db()
+# init_db()
 
 
 @auth.production_loader
@@ -136,4 +141,3 @@ def load_user(account_id):
 @login_manager.unauthorized_handler
 def authentication_required():
     return redirect('/')
-

@@ -1,9 +1,9 @@
 import os
 
 # Statement for enabling the development environment
-DEBUG = False
+DEBUG = True
 
-SITE_NAME = "Taxi service"
+SITE_NAME = "Lucky club"
 
 # Define the application directory
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -28,7 +28,16 @@ CSRF_ENABLED = True
 CSRF_SESSION_KEY = "TLuUFarPdqHRlWikPvlMHiqy3oGIeutgYk5x5U8n"
 
 # Secret key for signing cookies
-SECRET_KEY = "PUT YOUR DATA HERE"
-FIREBASE_API_KEY = "PUT YOUR DATA HERE"
-FIREBASE_PROJECT_ID = "PUT YOUR DATA HERE"
+SECRET_KEY = "TLuUFarssdPdqHRlWdsdgikPvlMHiqhhy3oGIggeutgYk5x5U8n"
+
+FIREBASE_API_KEY = "AIzaSyB9LhiF3IUAIhKtbxzP2dKW8FtVQq7BU70"
+FIREBASE_PROJECT_ID = "luckyclub-897a7"
 FIREBASE_AUTH_SIGN_IN_OPTIONS = "email,google"
+
+# Lots per page
+PER_PAGE = 20
+
+UPLOAD_FOLDER = '/media'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024
