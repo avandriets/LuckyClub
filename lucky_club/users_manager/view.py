@@ -5,14 +5,15 @@ from flask import render_template
 from flask import url_for
 from flask_login import login_required
 from werkzeug.security import gen_salt
-from lucky_club.database import db_session
+
+from lucky_club.database import db
 from lucky_club.users_manager.models import current_user, Client
 
 blueprint_applications = Blueprint('oauth2', __name__)
 
 
 def get_applications_list(user_param):
-    return db_session.query(Client).filter_by(user=user_param)
+    return db.session.query(Client).filter_by(user=user_param)
 
 
 @blueprint_applications.route('/new-app/', methods=['GET', 'POST'])
@@ -89,8 +90,8 @@ def create_application():
             user_id=user.id,
         )
 
-        db_session.add(new_application)
-        db_session.commit()
+        db.session.add(new_application)
+        db.session.commit()
 
         return redirect(url_for('oauth2.applications_list'))
 
@@ -157,7 +158,7 @@ def applications_list():
 def application_item(application_id):
     user = current_user()
     context = {'user': user}
-    application = db_session.query(Client).filter_by(user=user, client_id=application_id).one()
+    application = db.session.query(Client).filter_by(user=user, client_id=application_id).one()
 
     if application:
         context['name'] = application.application_name

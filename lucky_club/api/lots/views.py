@@ -3,9 +3,9 @@ View module for working with lots
 add, delete, get, add-to-favorite, add-user
 """
 from flask import Blueprint, jsonify
-from app import my_oauth2_provider
-from app.api.lots.models import Lot
-from app.database import db_session
+from lucky_club import my_oauth2_provider
+from lucky_club.api.lots.models import Lot
+from lucky_club.database import db
 
 blueprint_lots = Blueprint('lots', __name__)
 
@@ -30,7 +30,7 @@ def get_lots(page):
     :return:
     """
     # TODO implement return of lots with pagination
-    lots = db_session.query(Lot).all()
+    lots = db.session.query(Lot).all()
     return jsonify(Lot=[c.serialize for c in lots])
 
 

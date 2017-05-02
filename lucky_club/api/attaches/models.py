@@ -2,10 +2,10 @@ import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
-from lucky_club.database import Base, db_session
+from lucky_club.database import db
 
 
-class Attachment(Base):
+class Attachment(db.Model):
     __tablename__ = 'Attachment'
 
     id = Column(Integer, primary_key=True)

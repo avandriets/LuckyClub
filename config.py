@@ -1,7 +1,7 @@
 import os
 
 # Statement for enabling the development environment
-DEBUG = True
+DEBUG = False
 
 SITE_NAME = "Lucky club"
 
@@ -12,6 +12,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # SQLite for this example
 # SQLALCHEMY_DATABASE_URI = 'postgresql://catalog:W>HD;@Zq7tnY3BQA@localhost/item_catalog'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'app.db')
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 DATABASE_CONNECT_OPTIONS = {}
 
 # Application threads. A common general assumption is
@@ -37,7 +38,6 @@ FIREBASE_AUTH_SIGN_IN_OPTIONS = "email,google"
 # Lots per page
 PER_PAGE = 20
 
-UPLOAD_FOLDER = '/media'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-
-MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+# TODO change it for real database
+UPLOADED_PHOTOS_DEST = os.path.join(BASE_DIR, 'lucky_club/static/media')
+UPLOADED_PHOTOS_URL = "http://127.0.0.1:8000/static/media/"

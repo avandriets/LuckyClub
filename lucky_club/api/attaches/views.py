@@ -6,9 +6,9 @@ import os
 from flask import Blueprint
 from flask import request
 from werkzeug.utils import secure_filename
-from app import InvalidUsage
-from app import my_oauth2_provider
+from lucky_club import my_oauth2_provider
 from config import ALLOWED_EXTENSIONS, UPLOAD_FOLDER
+from lucky_club.error_helper import InvalidUsage
 
 blueprint_attachments = Blueprint('attachment', __name__)
 

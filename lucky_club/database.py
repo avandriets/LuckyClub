@@ -1,17 +1,17 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from config import SQLALCHEMY_DATABASE_URI
+from flask import current_app
+from flask_sqlalchemy import SQLAlchemy
 
-engine = create_engine(SQLALCHEMY_DATABASE_URI, convert_unicode=True)
-
-db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-
-Base = declarative_base()
-Base.query = db_session.query_property()
+db = SQLAlchemy()
 
 
 def init_db():
     # TODO Add other modules here
     import lucky_club.users_manager.models
-    Base.metadata.create_all(bind=engine)
+    import lucky_club.api.categories.models
+    import lucky_club.api.lots.models
+    import lucky_club.api.account.models
+    import lucky_club.api.attaches.models
+    import lucky_club.api.profile.models
+
+    db.init_app(current_app)
+    db.create_all()

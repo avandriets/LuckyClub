@@ -1,46 +1,46 @@
-from flask import Flask, request, jsonify
-from flask import redirect
-from flask import render_template
-from flask_login import login_user
-from flask_login import logout_user
-from flask_login import LoginManager
-from lucky_club.database import db_session, init_db
+from flask import Flask, request, jsonify, redirect, render_template
+from flask_login import login_user, logout_user, LoginManager
+from lucky_club.database import db
 from lucky_club.error_helper import InvalidUsage
-from lucky_club.flask_firebase import FirebaseAuth
-from lucky_club.main_page.view import blueprint_main
-from lucky_club.my_oauth2_provider import my_oauth2_provider
-from lucky_club.users_manager.models import User
 from flask_wtf.csrf import CSRFProtect
-
-csrf = CSRFProtect()
-login_manager = LoginManager()
-auth = FirebaseAuth()
+from lucky_club.flask_firebase import FirebaseAuth
+from lucky_club.my_oauth2_provider import my_oauth2_provider
+from flask_uploads import (UploadSet, configure_uploads, IMAGES, UploadNotAllowed)
 
 app = Flask(__name__)
 app.config.from_object('config')
 
-csrf.init_app(app)
+uploaded_photos = UploadSet('photos', IMAGES)
+configure_uploads(app, uploaded_photos)
+
+db.init_app(app)
+
+csrf = CSRFProtect(app)
+login_manager = LoginManager(app)
+auth = FirebaseAuth(app)
 my_oauth2_provider.init_app(app)
-login_manager.init_app(app)
-auth.init_app(app)
 
 from lucky_club.users_manager.view import blueprint_applications
+from lucky_club.main_page.view import blueprint_main
 
 app.register_blueprint(auth.blueprint, url_prefix='/authorize')
 app.register_blueprint(my_oauth2_provider.blueprint, url_prefix='/oauth')
 app.register_blueprint(blueprint_applications, url_prefix='/applications')
 app.register_blueprint(blueprint_main, url_prefix='/')
 
-csrf.exempt(my_oauth2_provider.blueprint)
-
 from lucky_club.api.profile.view import blueprint_users
 
 app.register_blueprint(blueprint_users, url_prefix='/api/profile')
+
+# disable csrf protection for api urls
+csrf.exempt(my_oauth2_provider.blueprint)
+csrf.exempt(blueprint_users)
 
 
 @app.cli.command('initdb')
 def initdb_command():
     """Creates the database tables."""
+    from lucky_club.database import init_db
     init_db()
     print('Initialized the database.')
 
@@ -59,6 +59,14 @@ from flask_wtf.csrf import CSRFError
 
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
+    if '/api/' in request.path:
+        response = jsonify({
+            'status': 400,
+            'sub_code': 1,
+            'message': "csrf protection error"
+        })
+        return response, 400
+
     return render_template('error/csrf_error.html', reason=e.description), 400
 
 
@@ -102,18 +110,38 @@ def not_found(error):
             'sub_code': 1,
             'message': "Client not authenticated."
         })
-        return response
+        return response, 401
 
     return render_template('error/401.html'), 401
 
 
+@app.errorhandler(405)
+def not_found(error):
+    """
+    Simple 401 page
+    :param error:
+    :return:
+    """
+    if '/api/' in request.path:
+        response = jsonify({
+            'status': 405,
+            'sub_code': 1,
+            'message': "Mehod nod allowed."
+        })
+        return response, 405
+
+    return render_template('error/405.html'), 405
+
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    db_session.remove()
+    from lucky_club.database import db
+    db.session.remove()
 
 
 @auth.production_loader
 def production_sign_in(token):
+    from lucky_club.users_manager.models import User
     account = User.query.filter_by(firebase_user_id=token['sub']).one_or_none()
     if account is None:
         account = User(firebase_user_id=token['sub'])
@@ -122,8 +150,15 @@ def production_sign_in(token):
         account.name = token.get('name')
         account.photo_url = token.get('picture')
         account.admin_user = 0
-        db_session.add(account)
-        db_session.commit()
+
+        from lucky_club.database import db
+        db.session.add(account)
+
+        from lucky_club.api.profile.models import Profile
+        profile = Profile(user=account)
+        db.session.add(profile)
+
+        db.session.commit()
     else:
         if account.admin_user == 0 or account.blocked:
             return False
@@ -140,6 +175,7 @@ def sign_out():
 
 @login_manager.user_loader
 def load_user(account_id):
+    from lucky_club.users_manager.models import User
     return User.query.get(account_id)
 
 

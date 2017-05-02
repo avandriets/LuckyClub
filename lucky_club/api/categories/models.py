@@ -2,10 +2,10 @@ import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
-from lucky_club.database import Base, db_session
+from lucky_club.database import db
 
 
-class Category(Base):
+class Category(db.Model):
     __tablename__ = 'Category'
 
     id = Column(Integer, primary_key=True)

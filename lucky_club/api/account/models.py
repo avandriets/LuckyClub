@@ -2,10 +2,10 @@ import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Numeric
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
-from lucky_club.database import Base
+from lucky_club.database import db
 
 
-class Account(Base):
+class Account(db.Model):
     __tablename__ = 'Account'
 
     id = Column(Integer, primary_key=True)
@@ -29,7 +29,7 @@ class Account(Base):
         }
 
 
-class AccountMovements(Base):
+class AccountMovements(db.Model):
     __tablename__ = 'AccountMovements'
 
     id = Column(Integer, primary_key=True)

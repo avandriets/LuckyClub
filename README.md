@@ -23,7 +23,7 @@ client_id: [CLIENT ID]
 client_secret: [CLIENT SECRET]
 username: [ANYTHING]
 password: [ANYTHING]
-firebase_token: [JWT TOKEN]
+jwt_token: [JWT TOKEN]
 ```
 2. to get token go to URL http://127.0.0.1:8000/oauth/token
 you get such json

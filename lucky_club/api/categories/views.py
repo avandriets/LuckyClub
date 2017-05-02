@@ -3,7 +3,7 @@ View module for working with lots
 add, delete, get, add-to-favorite, add-user
 """
 from flask import Blueprint
-from app import my_oauth2_provider
+from lucky_club import my_oauth2_provider
 
 blueprint_categories = Blueprint('category', __name__)
 

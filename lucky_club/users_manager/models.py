@@ -2,11 +2,14 @@ from flask import session
 from flask_login import UserMixin
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean
 from sqlalchemy import DateTime
+from sqlalchemy import event
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import relationship
-from lucky_club.database import Base, db_session
+from lucky_club.api.profile.models import Profile
+from lucky_club.database import db
 
 
-class User(UserMixin, Base):
+class User(UserMixin, db.Model):
     __tablename__ = 'User'
 
     id = Column(Integer, primary_key=True)
@@ -31,7 +34,7 @@ class User(UserMixin, Base):
         }
 
 
-class Client(Base):
+class Client(db.Model):
     __tablename__ = 'Client'
 
     application_name = Column(String(100))
@@ -74,7 +77,7 @@ class Client(Base):
         return ['password']
 
 
-class Grant(Base):
+class Grant(db.Model):
     __tablename__ = 'Grant'
 
     id = Column(Integer, primary_key=True)
@@ -98,8 +101,8 @@ class Grant(Base):
     _scopes = Column(Text)
 
     def delete(self):
-        db_session.delete(self)
-        db_session.commit()
+        db.session.delete(self)
+        db.session.commit()
         return self
 
     @property
@@ -109,7 +112,7 @@ class Grant(Base):
         return []
 
 
-class Token(Base):
+class Token(db.Model):
     __tablename__ = 'Token'
 
     id = Column(Integer, primary_key=True)
@@ -147,3 +150,14 @@ def current_user():
         user = None
 
     return user
+
+
+@event.listens_for(User, 'after_insert')
+def receive_user_after_insert(mapper, connection, target):
+    pass
+    # try:
+    #     profile = Profile(user = target)
+    #     profile.user = target
+    #     db.session.add(profile)
+    # except SQLAlchemyError as ex:
+    #     print(ex)

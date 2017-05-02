@@ -2,20 +2,28 @@ import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
-from lucky_club.database import Base
+from lucky_club.database import db
 
 
-class Profile(Base):
+class Profile(db.Model):
     __tablename__ = 'Profile'
 
     id = Column(Integer, primary_key=True)
-    first_name = Column(String(255), nullable=False)
-    last_name = Column(String(255), nullable=False)
-    photo_url = Column(String(500), nullable=True)
+    first_name = Column(String(255), nullable=True)
+    last_name = Column(String(255), nullable=True)
+    photo_file_name = Column(String(500), nullable=True)
     user_id = Column(ForeignKey('User.id'))
-    user = relationship('User')
+    user = relationship('User', backref=db.backref('user_profile', uselist=False, lazy='select'))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    @property
+    def photo_url(self):
+        if self.photo_file_name:
+            from lucky_club.lucky_club import uploaded_photos
+            return uploaded_photos.url(self.photo_file_name)
+        else:
+            return ""
 
     @property
     def serialize(self):

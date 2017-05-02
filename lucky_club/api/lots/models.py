@@ -2,10 +2,10 @@ import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean, Numeric
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
-from lucky_club.database import Base
+from lucky_club.database import db
 
 
-class Lot(Base):
+class Lot(db.Model):
     __tablename__ = 'Lot'
 
     id = Column(Integer, primary_key=True)
@@ -14,11 +14,11 @@ class Lot(Base):
     category_id = Column(ForeignKey('Category.id'))
     category = relationship('Category')
     owner_id = Column(ForeignKey('User.id'))
-    owner = relationship('User')
+    owner = relationship('User', backref=db.backref('user_lots', lazy='dynamic'), foreign_keys='Lot.owner_id')
     closed = Column(Boolean, default=False, nullable=False)
     deleted = Column(Boolean, default=False, nullable=False)
     winner_id = Column(ForeignKey('User.id'))
-    winner = relationship('User')
+    winner = relationship('User', backref=db.backref('user_winner', lazy='dynamic'), foreign_keys='Lot.winner_id')
     count_participants = Column(Integer, nullable=False)
     price = Column(Numeric(8, 2), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -43,7 +43,7 @@ class Lot(Base):
         }
 
 
-class Participants(Base):
+class Participants(db.Model):
     __tablename__ = 'Participants'
 
     id = Column(Integer, primary_key=True)
@@ -66,7 +66,7 @@ class Participants(Base):
         }
 
 
-class Favorite(Base):
+class Favorite(db.Model):
     __tablename__ = 'Favorite'
 
     id = Column(Integer, primary_key=True)
@@ -91,7 +91,7 @@ class Favorite(Base):
         }
 
 
-class Messages(Base):
+class Messages(db.Model):
     __tablename__ = 'Messages'
 
     id = Column(Integer, primary_key=True)

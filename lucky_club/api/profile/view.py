@@ -1,21 +1,81 @@
 from flask import Blueprint, jsonify
+from flask import current_app
+from flask import json
 from flask import request
+from lucky_club.api.profile.models import Profile
+from lucky_club.database import db
 from lucky_club.error_helper import InvalidUsage
 from lucky_club.my_oauth2_provider import my_oauth2_provider
+import os
 
 blueprint_users = Blueprint('profile', __name__)
+
+
+def is_ascii(s):
+    return all(ord(c) < 128 for c in s)
 
 
 @blueprint_users.route('/me', methods=['GET', 'PUT'])
 @my_oauth2_provider.require_oauth()
 def me():
-    # TODO get, edit profile function
+    profile = None
     try:
-        user = request.oauth.user
-        response = jsonify(username=user.name)
-        return response
+        profile = Profile.query.filter_by(user=request.oauth.user).first()
     except:
-        raise InvalidUsage('There occurs an error.', status_code=500)
+        raise InvalidUsage('Get profile error', status_code=500)
+
+    if request.method == 'GET':
+        try:
+            return jsonify(profile.serialize)
+        except:
+            raise InvalidUsage('Get profile error', status_code=500)
+    elif request.method == 'PUT':
+        if hasattr(request, 'data') and request.content_type == 'application/json':
+            try:
+                data = json.loads(request.data)
+                first_name = data['first_name']
+                last_name = data['last_name']
+                profile.first_name = first_name
+                profile.last_name = last_name
+                db.session.commit()
+            except:
+                raise InvalidUsage('Get profile error', status_code=500)
+        elif 'multipart/form-data' in request.content_type:
+
+            from flask_uploads import UploadNotAllowed
+            from lucky_club.lucky_club import uploaded_photos
+
+            try:
+                if 'file' in request.files:
+                    file = request.files['file']
+
+                    if file.filename == '':
+                        raise InvalidUsage('Input file.', status_code=500)
+
+                    from pytils.translit import translify
+
+                    if not is_ascii(file.filename):
+                        name, ext = os.path.splitext(file.filename)
+                        name = "1" + ext
+                        file.filename = name
+
+                    # file.filename = translify(file.filename)
+                    filename = uploaded_photos.save(file)
+                    profile.photo_file_name = filename
+
+            except UploadNotAllowed:
+                raise InvalidUsage('The upload was not allowed', status_code=500)
+            else:
+                first_name = request.form['first_name']
+                last_name = request.form['last_name']
+                profile.first_name = first_name
+                profile.last_name = last_name
+                db.session.commit()
+
+        return jsonify(profile.serialize)
+
+    else:
+        raise InvalidUsage('Method does not support.', status_code=405)
 
 
 @blueprint_users.route('/get-favorites')
@@ -30,29 +90,3 @@ def get_favorites():
 def get_balance():
     # TODO add get_favorites
     pass
-
-# @blueprint_users.route('/restaurants/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-# def restaurant_handler(id):
-#     restaurant = session.query(Restaurant).filter_by(id=id).one()
-#     if request.method == 'GET':
-#         # RETURN A SPECIFIC RESTAURANT
-#         return jsonify(restaurant=restaurant.serialize)
-#     elif request.method == 'PUT':
-#         # UPDATE A SPECIFIC RESTAURANT
-#         address = request.args.get('address')
-#         image = request.args.get('image')
-#         name = request.args.get('name')
-#         if address:
-#             restaurant.restaurant_address = address
-#         if image:
-#             restaurant.restaurant_image = image
-#         if name:
-#             restaurant.restaurant_name = name
-#         session.commit()
-#         return jsonify(restaurant=restaurant.serialize)
-#
-#     elif request.method == 'DELETE':
-#         # DELETE A SPECFIC RESTAURANT
-#         session.delete(restaurant)
-#         session.commit()
-#         return "Restaurant Deleted"
