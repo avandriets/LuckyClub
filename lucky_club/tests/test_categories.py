@@ -46,9 +46,9 @@ class CategoryTest(BasicTests):
 
             data = json.loads(rv.data)
             self.assertEqual(rv.status_code, 200, rv.status)
-            self.assertIn('Categories',data, 'Returned data not contain Categories')
+            self.assertIn('Categories', data, 'Returned data not contain Categories')
             self.assertEqual(len(data['Categories']), 1, 'We added just one row')
-            self.assertDictEqual(data['Categories'][0],original_data,'Added and got data are different')
+            self.assertDictEqual(data['Categories'][0], original_data, 'Added and got data are different')
 
             # add data with photo category
             base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -75,7 +75,6 @@ class CategoryTest(BasicTests):
 
             with open(os.path.join(base_dir, file_name), 'rb') as test_img:
                 assert getfile.data == test_img.read()
-
 
     def test_get_categories_by_user(self):
         with lucky_club.app.app_context():
@@ -116,9 +115,9 @@ class CategoryTest(BasicTests):
 
             data = json.loads(rv.data)
             self.assertEqual(rv.status_code, 200, rv.status)
-            self.assertIn('Categories',data, 'Returned data not contain Categories')
+            self.assertIn('Categories', data, 'Returned data not contain Categories')
             self.assertEqual(len(data['Categories']), 1, 'We added just one row')
-            self.assertDictEqual(data['Categories'][0],original_data,'Added and got data are different')
+            self.assertDictEqual(data['Categories'][0], original_data, 'Added and got data are different')
 
     def test_add_parent_category_by_user(self):
         with lucky_club.app.app_context():
@@ -150,7 +149,7 @@ class CategoryTest(BasicTests):
 
             data = json.loads(rv.data)
             self.assertEqual(rv.status_code, 200, rv.status)
-            self.assertIn('Categories',data, 'Returned data not contain Categories')
+            self.assertIn('Categories', data, 'Returned data not contain Categories')
             self.assertEqual(len(data['Categories']), 0, 'We added just one row')
 
             # blocked user test
@@ -170,3 +169,65 @@ class CategoryTest(BasicTests):
                                content_type='application/json',
                                headers=headers)
             self.assertEqual(rv.status_code, 401, rv.status)
+
+    def add_category_with_photo(self, user_owner, category_data):
+        rv = self.exchange_token(self.application, user_owner)
+        self.assertEqual(rv.status_code, 200, rv.status)
+
+        data = json.loads(rv.data)
+        headers = {"Authorization": "Bearer " + data['access_token']}
+
+        rv = self.app.post('/api/categories/',
+                           data=category_data,
+                           follow_redirects=True,
+                           headers=headers)
+
+        return rv
+
+    def test_delete_category(self):
+        file_name = 'images/русское имя.jpg'
+        with lucky_club.app.app_context():
+            self.init_users_and_application()
+
+            request_data = dict(
+                name='Hello',
+                description='World'
+            )
+
+            rv = self.add_category_without_photo(self.app_owner_user_data, request_data)
+            original_data = json.loads(rv.data)
+            self.assertEqual(rv.status_code, 200, rv.status)
+            self.assertEqual(original_data['name'], 'Hello', 'Wrong name')
+            self.assertEqual(original_data['description'], 'World', 'Wrong description')
+            self.assertEqual(original_data['parent_id'], None, 'parent_id have to be null')
+            self.assertEqual(original_data['picture_file'], None, 'picture_file have to be null')
+            self.assertEqual(original_data['picture_url'], "", 'picture_file have to be empty')
+
+            rv = self.get_categories(self.app_owner_user_data)
+            data = json.loads(rv.data)
+            self.assertEqual(rv.status_code, 200, rv.status)
+            self.assertIn('Categories', data, 'Returned data not contain Categories')
+            self.assertEqual(len(data['Categories']), 1, 'We added just one row')
+            self.assertDictEqual(data['Categories'][0], original_data, 'Added and got data are different')
+
+            rv = self.delete_category(self.app_owner_user_data, original_data['id'])
+            data = json.loads(rv.data)
+            self.assertEqual(data['success'], True, 'Successful deleted')
+
+            #
+            # delete by ordinary user
+            #
+            rv = self.add_category_without_photo(self.app_owner_user_data, request_data)
+
+            original_data = json.loads(rv.data)
+            self.assertEqual(rv.status_code, 200, rv.status)
+            self.assertEqual(original_data['name'], 'Hello', 'Wrong name')
+            self.assertEqual(original_data['description'], 'World', 'Wrong description')
+            self.assertEqual(original_data['parent_id'], None, 'parent_id have to be null')
+            self.assertEqual(original_data['picture_file'], None, 'picture_file have to be null')
+            self.assertEqual(original_data['picture_url'], "", 'picture_file have to be empty')
+
+            rv = self.delete_category(self.ordinary_user_data, original_data['id'])
+            self.assertEqual(rv.status_code, 403, rv.status)
+
+# TODO test PUT, ADD CHILD methods

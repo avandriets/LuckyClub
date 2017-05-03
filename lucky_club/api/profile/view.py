@@ -89,5 +89,5 @@ def get_favorites():
 @blueprint_users.route('/get-balance')
 @my_oauth2_provider.require_oauth()
 def get_balance():
-    # TODO add get_favorites
+    # TODO add get_balance
     pass

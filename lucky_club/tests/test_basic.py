@@ -126,6 +126,52 @@ class BasicTests(unittest.TestCase):
 
         return account
 
+    #
+    # Categories helper
+    #
+    def delete_category(self, user_owner, id):
+        rv = self.exchange_token(self.application, user_owner)
+        self.assertEqual(rv.status_code, 200, rv.status)
+
+        data = json.loads(rv.data)
+        headers = {"Authorization": "Bearer " + data['access_token']}
+
+        rv = self.app.delete('/api/categories/{0}'.format(id),
+                             follow_redirects=True,
+                             content_type='application/json',
+                             headers=headers)
+
+        return rv
+
+    def get_categories(self, user_owner):
+        rv = self.exchange_token(self.application, user_owner)
+        self.assertEqual(rv.status_code, 200, rv.status)
+
+        data = json.loads(rv.data)
+        headers = {"Authorization": "Bearer " + data['access_token']}
+
+        rv = self.app.get('/api/categories/',
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=headers)
+
+        return rv
+
+    def add_category_without_photo(self, user_owner, category_data):
+        rv = self.exchange_token(self.application, user_owner)
+        self.assertEqual(rv.status_code, 200, rv.status)
+
+        data = json.loads(rv.data)
+        headers = {"Authorization": "Bearer " + data['access_token']}
+
+        rv = self.app.post('/api/categories/',
+                           data=json.dumps(category_data),
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=headers)
+
+        return rv
+
 
 class ExchangeTokenTest(BasicTests):
     def test_create_admin_user(self):
