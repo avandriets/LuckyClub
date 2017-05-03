@@ -1,3 +1,4 @@
+import io, os
 from flask import json
 import lucky_club.api.account.models
 import lucky_club.api.attaches.models
@@ -10,6 +11,7 @@ from lucky_club.tests.test_basic import BasicTests
 
 class CategoryTest(BasicTests):
     def test_add_get_parent_category_by_admin(self):
+        file_name = 'images/русское имя.jpg'
         with lucky_club.app.app_context():
             self.init_users_and_application()
 
@@ -47,6 +49,33 @@ class CategoryTest(BasicTests):
             self.assertIn('Categories',data, 'Returned data not contain Categories')
             self.assertEqual(len(data['Categories']), 1, 'We added just one row')
             self.assertDictEqual(data['Categories'][0],original_data,'Added and got data are different')
+
+            # add data with photo category
+            base_dir = os.path.abspath(os.path.dirname(__file__))
+            with open(os.path.join(base_dir, file_name), 'rb') as test_img:
+                test_img_bytes_io = io.BytesIO(test_img.read())
+
+            request_data = dict(
+                name='Hello',
+                description='World',
+                file=(test_img_bytes_io, 'русское имя.jpg')
+            )
+            rv = self.app.post('/api/categories/', data=request_data, follow_redirects=True, headers=headers)
+            original_data = json.loads(rv.data)
+            self.assertEqual(rv.status_code, 200, rv.status)
+            self.assertEqual(original_data['name'], 'Hello', 'Wrong name')
+            self.assertEqual(original_data['description'], 'World', 'Wrong description')
+            self.assertEqual(original_data['parent_id'], None, 'parent_id have to be null')
+            self.assertNotEqual(original_data['picture_file'], None, 'picture_file does not have to be null')
+            self.assertNotEqual(original_data['picture_url'], "", 'picture_file have to be empty')
+
+            url = original_data['picture_url']
+            getfile = self.app.get(url, follow_redirects=True)
+            self.assertEqual(getfile.status_code, 200, rv.status)
+
+            with open(os.path.join(base_dir, file_name), 'rb') as test_img:
+                assert getfile.data == test_img.read()
+
 
     def test_get_categories_by_user(self):
         with lucky_club.app.app_context():
