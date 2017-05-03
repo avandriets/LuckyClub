@@ -23,7 +23,7 @@ class CategoryTest(BasicTests):
             )
             headers = {"Authorization": "Bearer " + data['access_token']}
 
-            rv = self.app.post('/api/categories/new-category',
+            rv = self.app.post('/api/categories/',
                                data=json.dumps(request_data),
                                follow_redirects=True,
                                content_type='application/json',
@@ -62,7 +62,7 @@ class CategoryTest(BasicTests):
             )
             headers = {"Authorization": "Bearer " + data['access_token']}
 
-            rv = self.app.post('/api/categories/new-category',
+            rv = self.app.post('/api/categories/',
                                data=json.dumps(request_data),
                                follow_redirects=True,
                                content_type='application/json',
@@ -106,7 +106,7 @@ class CategoryTest(BasicTests):
             )
             headers = {"Authorization": "Bearer " + data['access_token']}
 
-            rv = self.app.post('/api/categories/new-category',
+            rv = self.app.post('/api/categories/',
                                data=json.dumps(request_data),
                                follow_redirects=True,
                                content_type='application/json',
@@ -135,7 +135,7 @@ class CategoryTest(BasicTests):
             )
             headers = {"Authorization": "Bearer helloworld"}
 
-            rv = self.app.post('/api/categories/new-category',
+            rv = self.app.post('/api/categories/',
                                data=json.dumps(request_data),
                                follow_redirects=True,
                                content_type='application/json',

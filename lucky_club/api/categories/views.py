@@ -14,7 +14,7 @@ from lucky_club.my_oauth2_provider import my_oauth2_provider
 blueprint_categories = Blueprint('categories', __name__)
 
 
-@blueprint_categories.route('/new-category', methods=['POST'])
+@blueprint_categories.route('/', methods=['POST'])
 @my_oauth2_provider.require_oauth()
 @is_admin_user(methods=['POST'])
 def add_category():
