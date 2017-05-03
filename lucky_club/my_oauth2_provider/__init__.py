@@ -104,6 +104,10 @@ class MyOauth2Provider(OAuth2Provider, JwtParser):
             profile = Profile(user=account)
             db.session.add(profile)
 
+            from lucky_club.api.account.models import Account
+            bank_account = Account(user=account)
+            db.session.add(bank_account)
+
             db.session.commit()
 
         if account and account.blocked == 1:

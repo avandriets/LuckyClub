@@ -12,7 +12,7 @@ class Account(db.Model):
     name = Column(String(255), nullable=True)
     description = Column(String(255), nullable=True)
     user_id = Column(ForeignKey('User.id'))
-    user = relationship('User')
+    user = relationship('User', backref=db.backref('bank_account', uselist=False, lazy='select'))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 

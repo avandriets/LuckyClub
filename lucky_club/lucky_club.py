@@ -29,12 +29,14 @@ app.register_blueprint(blueprint_applications, url_prefix='/applications')
 app.register_blueprint(blueprint_main, url_prefix='/')
 
 from lucky_club.api.profile.view import blueprint_users
-
+from lucky_club.api.categories.views import blueprint_categories
 app.register_blueprint(blueprint_users, url_prefix='/api/profile')
+app.register_blueprint(blueprint_categories, url_prefix='/api/categories')
 
 # disable csrf protection for api urls
 csrf.exempt(my_oauth2_provider.blueprint)
 csrf.exempt(blueprint_users)
+csrf.exempt(blueprint_categories)
 
 
 @app.cli.command('initdb')
@@ -157,6 +159,10 @@ def production_sign_in(token):
         from lucky_club.api.profile.models import Profile
         profile = Profile(user=account)
         db.session.add(profile)
+
+        from lucky_club.api.account.models import Account
+        bank_account = Account(user=account)
+        db.session.add(bank_account)
 
         db.session.commit()
     else:

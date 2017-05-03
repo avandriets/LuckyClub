@@ -1,18 +1,14 @@
 from flask import Blueprint, jsonify
-from flask import current_app
 from flask import json
 from flask import request
 from lucky_club.api.profile.models import Profile
 from lucky_club.database import db
 from lucky_club.error_helper import InvalidUsage
+from lucky_club.helper_utils import is_ascii
 from lucky_club.my_oauth2_provider import my_oauth2_provider
 import os
 
 blueprint_users = Blueprint('profile', __name__)
-
-
-def is_ascii(s):
-    return all(ord(c) < 128 for c in s)
 
 
 @blueprint_users.route('/me', methods=['GET', 'PUT'])
@@ -30,48 +26,53 @@ def me():
         except:
             raise InvalidUsage('Get profile error', status_code=500)
     elif request.method == 'PUT':
-        if hasattr(request, 'data') and request.content_type == 'application/json':
-            try:
-                data = json.loads(request.data)
-                first_name = data['first_name']
-                last_name = data['last_name']
-                profile.first_name = first_name
-                profile.last_name = last_name
-                db.session.commit()
-            except:
-                raise InvalidUsage('Get profile error', status_code=500)
-        elif 'multipart/form-data' in request.content_type:
 
-            from flask_uploads import UploadNotAllowed
-            from lucky_club.lucky_club import uploaded_photos
-
-            try:
-                if 'file' in request.files:
-                    file = request.files['file']
-
-                    if file.filename == '':
-                        raise InvalidUsage('Input file.', status_code=500)
-
-                    from pytils.translit import translify
-
-                    if not is_ascii(file.filename):
-                        name, ext = os.path.splitext(file.filename)
-                        name = "1" + ext
-                        file.filename = name
-
-                    # file.filename = translify(file.filename)
-                    filename = uploaded_photos.save(file)
-                    profile.photo_file_name = filename
-
-            except UploadNotAllowed:
-                raise InvalidUsage('The upload was not allowed', status_code=500)
+        form_data = None
+        try:
+            if hasattr(request, 'data') and request.content_type == 'application/json':
+                form_data = json.loads(request.data)
+            elif 'multipart/form-data' in request.content_type:
+                form_data = request.form
             else:
-                first_name = request.form['first_name']
-                last_name = request.form['last_name']
-                profile.first_name = first_name
-                profile.last_name = last_name
-                db.session.commit()
+                raise InvalidUsage('Incorrect content type.', status_code=500)
+        except:
+            raise InvalidUsage('Cannot get input data.', status_code=500)
 
+        from flask_uploads import UploadNotAllowed
+        from lucky_club.lucky_club import uploaded_photos
+
+        try:
+            if 'file' in request.files:
+                file = request.files['file']
+
+                if file.filename == '':
+                    raise InvalidUsage('Input file.', status_code=500)
+
+                from pytils.translit import translify
+
+                if not is_ascii(file.filename):
+                    name, ext = os.path.splitext(file.filename)
+                    name = "1" + ext
+                    file.filename = name
+
+                # file.filename = translify(file.filename)
+                filename = uploaded_photos.save(file)
+                profile.photo_file_name = filename
+
+        except UploadNotAllowed:
+            raise InvalidUsage('The upload was not allowed', status_code=500)
+        else:
+            if 'first_name' in form_data:
+                first_name = form_data['first_name']
+                profile.first_name = first_name
+
+            if 'last_name' in form_data:
+                last_name = form_data['last_name']
+                profile.last_name = last_name
+
+            db.session.commit()
+
+        profile = Profile.query.filter_by(user=profile.user).first()
         return jsonify(profile.serialize)
 
     else:

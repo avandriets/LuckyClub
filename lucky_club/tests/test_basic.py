@@ -105,6 +105,10 @@ class BasicTests(unittest.TestCase):
             profile = Profile(user=account)
             db.session.add(profile)
 
+            from lucky_club.api.account.models import Account
+            bank_account = Account(user=account)
+            db.session.add(bank_account)
+
             db.session.commit()
         except Exception as e:
             print(e)
@@ -127,6 +131,7 @@ class ExchangeTokenTest(BasicTests):
         with lucky_club.app.app_context():
             self.user_app_owner = self.create_user(self.app_owner_user_data)
             self.assertNotEqual(self.user_app_owner.user_profile, None, "Can not create owner profile")
+            self.assertNotEqual(self.user_app_owner.bank_account, None, "Can not create bank account")
 
             self.assertNotEqual(self.user_app_owner, None, "Can not create application owner")
 
@@ -144,6 +149,7 @@ class ExchangeTokenTest(BasicTests):
             self.user_app_owner = self.create_user(self.app_owner_user_data)
             self.assertNotEqual(self.user_app_owner, None, "Can not create application owner")
             self.assertNotEqual(self.user_app_owner.user_profile, None, "Can not create owner profile")
+            self.assertNotEqual(self.user_app_owner.bank_account, None, "Can not create bank account")
 
             self.application = self.create_application(self.user_app_owner)
             self.assertNotEqual(self.application, None, "Can not create application")
@@ -163,6 +169,7 @@ class ExchangeTokenTest(BasicTests):
             self.user_app_owner = self.create_user(self.app_owner_user_data)
             self.assertNotEqual(self.user_app_owner, None, "Can not create application owner")
             self.assertNotEqual(self.user_app_owner.user_profile, None, "Can not create owner profile")
+            self.assertNotEqual(self.user_app_owner.bank_account, None, "Can not create bank account")
 
             self.application = self.create_application(self.user_app_owner)
             self.assertNotEqual(self.application, None, "Can not create application")
@@ -192,6 +199,7 @@ class ExchangeTokenTest(BasicTests):
             self.user_app_owner = self.create_user(self.app_owner_user_data)
             self.assertNotEqual(self.user_app_owner, None, "Can not create application owner")
             self.assertNotEqual(self.user_app_owner.user_profile, None, "Can not create owner profile")
+            self.assertNotEqual(self.user_app_owner.bank_account, None, "Can not create bank account")
 
             self.application = self.create_application(self.user_app_owner)
             self.assertNotEqual(self.application, None, "Can not create application")
@@ -232,6 +240,7 @@ class ExchangeTokenTest(BasicTests):
             self.user_app_owner = self.create_user(self.app_owner_user_data)
             self.assertNotEqual(self.user_app_owner, None, "Can not create application owner")
             self.assertNotEqual(self.user_app_owner.user_profile, None, "Can not create owner profile")
+            self.assertNotEqual(self.user_app_owner.bank_account, None, "Can not create bank account")
 
             self.application = self.create_application(self.user_app_owner)
             self.assertNotEqual(self.application, None, "Can not create application")
@@ -270,6 +279,7 @@ class ExchangeTokenTest(BasicTests):
             self.user_app_owner = self.create_user(self.app_owner_user_data)
             self.assertNotEqual(self.user_app_owner, None, "Can not create application owner")
             self.assertNotEqual(self.user_app_owner.user_profile, None, "Can not create owner profile")
+            self.assertNotEqual(self.user_app_owner.bank_account, None, "Can not create bank account")
 
             self.application = self.create_application(self.user_app_owner)
             self.assertNotEqual(self.application, None, "Can not create application")
@@ -278,6 +288,7 @@ class ExchangeTokenTest(BasicTests):
             blocked_user = self.create_user(blocked_user_data)
             self.assertNotEqual(blocked_user, None, "Can not create blocked_user")
             self.assertNotEqual(blocked_user.user_profile, None, "Can not create blocked_user profile")
+            self.assertNotEqual(blocked_user.bank_account, None, "Can not create bank account")
 
             rv = self.exchange_token(self.application, blocked_user_data)
             self.assertEqual(rv.status_code, 403, rv.status)
@@ -311,6 +322,7 @@ class ExchangeTokenTest(BasicTests):
             self.user_app_owner = self.create_user(self.app_owner_user_data)
             self.assertNotEqual(self.user_app_owner, None, "Can not create application owner")
             self.assertNotEqual(self.user_app_owner.user_profile, None, "Can not create owner profile")
+            self.assertNotEqual(self.user_app_owner.bank_account, None, "Can not create bank account")
 
             self.application = self.create_application(self.user_app_owner)
             self.assertNotEqual(self.application, None, "Can not create application")
@@ -318,6 +330,7 @@ class ExchangeTokenTest(BasicTests):
             blocked_admin_user = self.create_user(blocked_admin_user_data)
             self.assertNotEqual(blocked_admin_user, None, "Can not create blocked_admin_user_data")
             self.assertNotEqual(blocked_admin_user.user_profile, None, "Can not create blocked_admin_user_data profile")
+            self.assertNotEqual(blocked_admin_user.bank_account, None, "Can not create bank account")
 
             rv = self.exchange_token(self.application, blocked_admin_user_data)
             self.assertEqual(rv.status_code, 403, rv.status)

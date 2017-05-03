@@ -3,9 +3,7 @@ from flask_login import UserMixin
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean
 from sqlalchemy import DateTime
 from sqlalchemy import event
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import relationship
-from lucky_club.api.profile.models import Profile
 from lucky_club.database import db
 
 
