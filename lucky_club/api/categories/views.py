@@ -73,6 +73,7 @@ def category_main():
             db.session.add(category)
             db.session.commit()
 
+        category = Category.query.get(category.id)
         return jsonify(category.serialize)
 
 
