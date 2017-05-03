@@ -5,6 +5,7 @@ add, delete, get, add-to-favorite, add-user
 import os
 from flask import Blueprint, request, jsonify, json
 from lucky_club.api.categories.models import Category
+from lucky_club.app_decorators import is_admin_user
 from lucky_club.database import db
 from lucky_club.error_helper import InvalidUsage
 from lucky_club.helper_utils import is_ascii
@@ -13,9 +14,9 @@ from lucky_club.my_oauth2_provider import my_oauth2_provider
 blueprint_categories = Blueprint('categories', __name__)
 
 
-# TODO add admin user decorator
 @blueprint_categories.route('/', methods=['GET', 'POST'])
 @my_oauth2_provider.require_oauth()
+@is_admin_user(methods=['POST'])
 def category_main():
     """
     POST create new lot
