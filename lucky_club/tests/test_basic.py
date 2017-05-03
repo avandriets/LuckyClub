@@ -35,6 +35,16 @@ class BasicTests(unittest.TestCase):
             'blocked': False
         }
 
+        self.blocked_user_data = {
+            'sub': 'blocked_user@localhost.com',
+            'email': 'blocked_user@localhost.com',
+            'email_verified': True,
+            'name': 'blocked_user',
+            'photo_url': '',
+            'admin_user': 0,
+            'blocked': True
+        }
+
         self.user_app_owner = self.create_user(self.app_owner_user_data)
         self.application = self.create_application(self.user_app_owner)
 

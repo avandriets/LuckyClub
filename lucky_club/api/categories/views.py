@@ -14,18 +14,15 @@ from lucky_club.my_oauth2_provider import my_oauth2_provider
 blueprint_categories = Blueprint('categories', __name__)
 
 
-@blueprint_categories.route('/', methods=['GET', 'POST'])
+@blueprint_categories.route('/new-category', methods=['POST'])
 @my_oauth2_provider.require_oauth()
 @is_admin_user(methods=['POST'])
-def category_main():
+def add_category():
     """
     POST create new lot
     :return:
     """
-    if request.method == 'GET':
-        categories = Category.query.all()
-        return jsonify(Categories=[c.serialize for c in categories])
-    elif request.method == 'POST':
+    if request.method == 'POST':
 
         category = Category(user=request.oauth.user)
         form_data = None
@@ -76,6 +73,13 @@ def category_main():
 
         category = Category.query.get(category.id)
         return jsonify(category.serialize)
+
+
+@blueprint_categories.route('/', methods=['GET'])
+def add_category():
+    if request.method == 'GET':
+        categories = Category.query.all()
+        return jsonify(Categories=[c.serialize for c in categories])
 
 
 @blueprint_categories.route('/<int:category_id>', methods=['GET', 'PUT', 'DELETE', 'POST'])

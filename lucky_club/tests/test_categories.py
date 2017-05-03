@@ -23,7 +23,7 @@ class CategoryTest(BasicTests):
             )
             headers = {"Authorization": "Bearer " + data['access_token']}
 
-            rv = self.app.post('/api/categories/',
+            rv = self.app.post('/api/categories/new-category',
                                data=json.dumps(request_data),
                                follow_redirects=True,
                                content_type='application/json',
@@ -62,7 +62,7 @@ class CategoryTest(BasicTests):
             )
             headers = {"Authorization": "Bearer " + data['access_token']}
 
-            rv = self.app.post('/api/categories/',
+            rv = self.app.post('/api/categories/new-category',
                                data=json.dumps(request_data),
                                follow_redirects=True,
                                content_type='application/json',
@@ -96,6 +96,7 @@ class CategoryTest(BasicTests):
             self.init_users_and_application()
 
             rv = self.exchange_token(self.application, self.ordinary_user_data)
+            self.assertEqual(rv.status_code, 200, rv.status)
 
             data = json.loads(rv.data)
 
@@ -105,13 +106,12 @@ class CategoryTest(BasicTests):
             )
             headers = {"Authorization": "Bearer " + data['access_token']}
 
-            rv = self.app.post('/api/categories/',
+            rv = self.app.post('/api/categories/new-category',
                                data=json.dumps(request_data),
                                follow_redirects=True,
                                content_type='application/json',
                                headers=headers)
 
-            original_data = json.loads(rv.data)
             self.assertEqual(rv.status_code, 403, rv.status)
 
             rv = self.app.get('/api/categories/',
@@ -123,3 +123,21 @@ class CategoryTest(BasicTests):
             self.assertEqual(rv.status_code, 200, rv.status)
             self.assertIn('Categories',data, 'Returned data not contain Categories')
             self.assertEqual(len(data['Categories']), 0, 'We added just one row')
+
+            # blocked user test
+            self.blocked_user = self.create_user(self.blocked_user_data)
+            rv = self.exchange_token(self.application, self.blocked_user_data)
+            self.assertEqual(rv.status_code, 403, rv.status)
+
+            request_data = dict(
+                name='Hello',
+                description='World'
+            )
+            headers = {"Authorization": "Bearer helloworld"}
+
+            rv = self.app.post('/api/categories/new-category',
+                               data=json.dumps(request_data),
+                               follow_redirects=True,
+                               content_type='application/json',
+                               headers=headers)
+            self.assertEqual(rv.status_code, 401, rv.status)
