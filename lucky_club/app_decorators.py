@@ -45,4 +45,3 @@ def is_category_exists(function):
             raise InvalidUsage('Category does not exists', status_code=400)
 
     return wrapper
-

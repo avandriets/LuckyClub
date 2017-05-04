@@ -13,7 +13,7 @@ class Category(db.Model):
     description = Column(Text, nullable=False)
     picture_file = Column(String(500), nullable=True)
     parent_id = Column(ForeignKey('Category.id'), nullable=True)
-    parent = relationship('Category')
+    parent = relationship('Category', lazy="joined", join_depth=2)
     user_id = Column(ForeignKey('User.id'))
     user = relationship('User')
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -34,7 +34,7 @@ class Category(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'picture_file':self.picture_file,
+            'picture_file': self.picture_file,
             'picture_url': self.picture_url,
             'parent_id': self.parent_id,
             'created_at': self.created_at,

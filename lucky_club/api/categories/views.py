@@ -93,7 +93,7 @@ def get_category_by_id(category_id=None):
     """
     if request.method == 'GET':
         category = Category.query.get(category_id)
-        return jsonify(category)
+        return jsonify(category.serialize)
 
 
 def category_edit(category, form_data):
@@ -175,7 +175,8 @@ def edit_category(category_id=None):
             return jsonify(dict(success=False, message='lots or other categories refer on it'))
 
     elif request.method == 'POST':
-        new_category = Category(user=request.oauth.user, parent=category)
+        new_category = Category(user=request.oauth.user)
+        new_category.parent_id = category.id
         new_category = category_edit(new_category, form_data=form_data)
         db.session.add(new_category)
         db.session.commit()
