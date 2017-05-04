@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify, redirect, render_template
 from flask_login import login_user, logout_user, LoginManager
+
 from lucky_club.database import db
 from lucky_club.error_helper import InvalidUsage
 from flask_wtf.csrf import CSRFProtect
 from lucky_club.flask_firebase import FirebaseAuth
+from lucky_club.json_encoder import CustomDecimalJSONEncoder
 from lucky_club.my_oauth2_provider import my_oauth2_provider
 from flask_uploads import (UploadSet, configure_uploads, IMAGES, UploadNotAllowed)
 
@@ -14,6 +16,8 @@ uploaded_photos = UploadSet('photos', IMAGES)
 configure_uploads(app, uploaded_photos)
 
 db.init_app(app)
+
+app.json_encoder = CustomDecimalJSONEncoder
 
 csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
@@ -30,13 +34,20 @@ app.register_blueprint(blueprint_main, url_prefix='/')
 
 from lucky_club.api.profile.view import blueprint_users
 from lucky_club.api.categories.views import blueprint_categories
+from lucky_club.api.lots.views import blueprint_lots
+from lucky_club.api.attaches.views import blueprint_attachments
+
 app.register_blueprint(blueprint_users, url_prefix='/api/profile')
 app.register_blueprint(blueprint_categories, url_prefix='/api/categories')
+app.register_blueprint(blueprint_lots, url_prefix='/api/lots')
+app.register_blueprint(blueprint_attachments, url_prefix='/api/attachments')
 
 # disable csrf protection for api urls
 csrf.exempt(my_oauth2_provider.blueprint)
 csrf.exempt(blueprint_users)
 csrf.exempt(blueprint_categories)
+csrf.exempt(blueprint_lots)
+csrf.exempt(blueprint_attachments)
 
 
 @app.cli.command('initdb')
@@ -86,16 +97,32 @@ def not_found(error):
     :param error:
     :return:
     """
+    if '/api/' in request.path:
+        response = jsonify({
+            'status': 404,
+            'sub_code': 1,
+            'message': "not found."
+        })
+        return response, 404
+
     return render_template('error/404.html'), 404
 
 
 @app.errorhandler(403)
 def not_found(error):
     """
-    Simple 404 page
+    Simple 403 page
     :param error:
     :return:
     """
+    if '/api/' in request.path:
+        response = jsonify({
+            'status': 403,
+            'sub_code': 1,
+            'message': "forbidden"
+        })
+        return response, 403
+
     return render_template('error/403.html'), 403
 
 
@@ -128,7 +155,7 @@ def not_found(error):
         response = jsonify({
             'status': 405,
             'sub_code': 1,
-            'message': "Mehod nod allowed."
+            'message': "Method nod allowed."
         })
         return response, 405
 

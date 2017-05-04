@@ -15,6 +15,7 @@ class Lot(db.Model):
     category = relationship('Category', backref=db.backref('lots_of_category', lazy='select'))
     owner_id = Column(ForeignKey('User.id'))
     owner = relationship('User', backref=db.backref('user_lots', lazy='select'), foreign_keys='Lot.owner_id')
+    published = Column(Boolean, default=False, nullable=False)
     closed = Column(Boolean, default=False, nullable=False)
     deleted = Column(Boolean, default=False, nullable=False)
     winner_id = Column(ForeignKey('User.id'))
@@ -32,6 +33,7 @@ class Lot(db.Model):
             'name': self.name,
             'description': self.description,
             'category_id':self.category_id,
+            'published': self.published,
             'closed': self.closed,
             'deleted': self.deleted,
             'winner_id': self.winner_id,
@@ -39,7 +41,8 @@ class Lot(db.Model):
             'price': self.price,
             'owner_id': self.owner_id,
             'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'updated_at': self.updated_at,
+            'pictures': [c.serialize for c in self.images_of_lot]
         }
 
 

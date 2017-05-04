@@ -50,6 +50,7 @@ class BasicTests(unittest.TestCase):
 
     def setUp(self):
         lucky_club.app.config['TESTING'] = True
+        lucky_club.app.config['PER_PAGE'] = 5
         self.db_fd, lucky_club.app.config['BASE_DIR'] = tempfile.mkstemp()
         lucky_club.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + lucky_club.app.config['BASE_DIR']
         lucky_club.app.config['DEBUG'] = False
@@ -179,10 +180,10 @@ class BasicTests(unittest.TestCase):
         headers = {"Authorization": "Bearer " + data['access_token']}
 
         rv = self.app.post('/api/categories/{0}'.format(id),
-                          data=category_data,
-                          follow_redirects=True,
-                          content_type=content_type,
-                          headers=headers)
+                           data=category_data,
+                           follow_redirects=True,
+                           content_type=content_type,
+                           headers=headers)
         return rv
 
     def get_categories(self, user_owner):

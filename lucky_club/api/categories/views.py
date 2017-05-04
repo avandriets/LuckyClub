@@ -34,43 +34,16 @@ def add_category():
             elif 'multipart/form-data' in request.content_type:
                 form_data = request.form
             else:
+                db.session.rollback()
                 raise InvalidUsage('Incorrect content type.', status_code=500)
         except:
+            db.session.rollback()
             raise InvalidUsage('Get post data error.', status_code=500)
 
-        from flask_uploads import UploadNotAllowed
-        from lucky_club.lucky_club import uploaded_photos
+        category_edit(category, form_data)
 
-        try:
-            if 'file' in request.files:
-                file = request.files['file']
-
-                if file.filename == '':
-                    raise InvalidUsage('Input file.', status_code=500)
-
-                if not is_ascii(file.filename):
-                    name, ext = os.path.splitext(file.filename)
-                    name = "1" + ext
-                    file.filename = name
-
-                filename = uploaded_photos.save(file)
-                category.picture_file = filename
-
-        except UploadNotAllowed:
-            raise InvalidUsage('The upload was not allowed', status_code=500)
-        else:
-            if 'name' not in form_data:
-                raise InvalidUsage('Field name is empty', status_code=400)
-            name = form_data['name']
-            category.name = name
-
-            if 'description' not in form_data:
-                raise InvalidUsage('Field description is empty', status_code=400)
-            description = form_data['description']
-            category.description = description
-
-            db.session.add(category)
-            db.session.commit()
+        db.session.add(category)
+        db.session.commit()
 
         category = Category.query.get(category.id)
         return jsonify(category.serialize)
@@ -94,41 +67,6 @@ def get_category_by_id(category_id=None):
     if request.method == 'GET':
         category = Category.query.get(category_id)
         return jsonify(category.serialize)
-
-
-def category_edit(category, form_data):
-    from flask_uploads import UploadNotAllowed
-    from lucky_club.lucky_club import uploaded_photos
-
-    try:
-        if 'file' in request.files:
-            file = request.files['file']
-
-            if file.filename == '':
-                raise InvalidUsage('Input file.', status_code=500)
-
-            if not is_ascii(file.filename):
-                name, ext = os.path.splitext(file.filename)
-                name = "1" + ext
-                file.filename = name
-
-            filename = uploaded_photos.save(file)
-            category.picture_file = filename
-
-    except UploadNotAllowed:
-        raise InvalidUsage('The upload was not allowed', status_code=500)
-    else:
-        if 'name' not in form_data:
-            raise InvalidUsage('Field name is empty', status_code=400)
-        name = form_data['name']
-        category.name = name
-
-        if 'description' not in form_data:
-            raise InvalidUsage('Field description is empty', status_code=400)
-        description = form_data['description']
-        category.description = description
-
-    return category
 
 
 @blueprint_categories.route('/<int:category_id>', methods=['PUT', 'DELETE', 'POST'])
@@ -183,3 +121,42 @@ def edit_category(category_id=None):
 
         new_category = Category.query.get(new_category.id)
         return jsonify(new_category.serialize)
+
+
+def category_edit(category, form_data):
+    from flask_uploads import UploadNotAllowed
+    from lucky_club.lucky_club import uploaded_photos
+
+    try:
+        if 'file' in request.files:
+            file = request.files['file']
+
+            if file.filename == '':
+                db.session.rollback()
+                raise InvalidUsage('Input file.', status_code=500)
+
+            if not is_ascii(file.filename):
+                name, ext = os.path.splitext(file.filename)
+                name = "1" + ext
+                file.filename = name
+
+            filename = uploaded_photos.save(file)
+            category.picture_file = filename
+
+    except UploadNotAllowed:
+        db.session.rollback()
+        raise InvalidUsage('The upload was not allowed', status_code=500)
+    else:
+        if 'name' not in form_data or not form_data['name'].strip():
+            db.session.rollback()
+            raise InvalidUsage('Field name is empty', status_code=400)
+        name = form_data['name']
+        category.name = name
+
+        if 'description' not in form_data or not form_data['description'].strip():
+            db.session.rollback()
+            raise InvalidUsage('Field description is empty', status_code=400)
+        description = form_data['description']
+        category.description = description
+
+    return category

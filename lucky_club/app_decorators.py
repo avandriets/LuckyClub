@@ -42,6 +42,36 @@ def is_category_exists(function):
         if category:
             return function(*args, **kwargs)
         else:
-            raise InvalidUsage('Category does not exists', status_code=400)
+            raise InvalidUsage('Category does not exists', status_code=404)
+
+    return wrapper
+
+
+def is_lot_exists(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+
+        from lucky_club.api.lots.models import Lot
+        lot = Lot.query.get(kwargs['lot_id'])
+
+        if lot:
+            return function(*args, **kwargs)
+        else:
+            raise InvalidUsage('Lot does not exists', status_code=404)
+
+    return wrapper
+
+
+def is_lot_owner(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+
+        from lucky_club.api.lots.models import Lot
+        lot = Lot.query.get(kwargs['lot_id'])
+
+        if lot and lot.owner_id == request.oauth.user.id:
+            return function(*args, **kwargs)
+        else:
+            raise InvalidUsage('You do not have permissions to edit object', status_code=404)
 
     return wrapper

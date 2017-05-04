@@ -12,7 +12,7 @@ class Attachment(db.Model):
     description = Column(String(255), nullable=True)
     file_url = Column(String(500), nullable=False)
     lot_id = Column(ForeignKey('Lot.id'))
-    lot = relationship('Lot')
+    lot = relationship('Lot', backref=db.backref('images_of_lot', lazy='select'))
     user_id = Column(ForeignKey('User.id'))
     user = relationship('User')
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
