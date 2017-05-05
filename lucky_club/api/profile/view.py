@@ -79,13 +79,6 @@ def me():
         raise InvalidUsage('Method does not support.', status_code=405)
 
 
-@blueprint_users.route('/get-favorites')
-@my_oauth2_provider.require_oauth()
-def get_favorites():
-    # TODO add get_favorites
-    pass
-
-
 @blueprint_users.route('/get-balance')
 @my_oauth2_provider.require_oauth()
 def get_balance():

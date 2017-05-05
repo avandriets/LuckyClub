@@ -16,7 +16,7 @@ class Lot(db.Model):
     owner_id = Column(ForeignKey('User.id'))
     owner = relationship('User', backref=db.backref('user_lots', lazy='select'), foreign_keys='Lot.owner_id')
     published = Column(Boolean, default=False, nullable=False)
-    closed = Column(Boolean, default=False, nullable=False)
+    finished = Column(Boolean, default=False, nullable=False)
     deleted = Column(Boolean, default=False, nullable=False)
     winner_id = Column(ForeignKey('User.id'))
     winner = relationship('User', backref=db.backref('user_winner', lazy='select'), foreign_keys='Lot.winner_id')
@@ -32,9 +32,9 @@ class Lot(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'category_id':self.category_id,
+            'category_id': self.category_id,
             'published': self.published,
-            'closed': self.closed,
+            'finished': self.finished,
             'deleted': self.deleted,
             'winner_id': self.winner_id,
             'count_participants': self.count_participants,
@@ -63,7 +63,7 @@ class Participants(db.Model):
         return {
             'id': self.id,
             'lot_id': self.lot_id,
-            'participant_id':self.participant_id,
+            'participant_id': self.participant_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -87,6 +87,7 @@ class Favorite(db.Model):
         """Return object data in easily serializeable format"""
         return {
             'id': self.id,
+            'lots': [c.serialize for c in self.lot],
             'lot_id': self.lot_id,
             'user_id': self.user_id,
             'created_at': self.created_at,
@@ -112,9 +113,9 @@ class Messages(db.Model):
         """Return object data in easily serializeable format"""
         return {
             'id': self.id,
-            'message':self.message,
-            'lot_id':self.lot_id,
-            'user_id':self.user_id,
+            'message': self.message,
+            'lot_id': self.lot_id,
+            'user_id': self.user_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

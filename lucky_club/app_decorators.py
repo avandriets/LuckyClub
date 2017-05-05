@@ -62,14 +62,59 @@ def is_lot_exists(function):
     return wrapper
 
 
-def is_lot_owner(function):
+def is_lot_owner_or_admin(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
 
         from lucky_club.api.lots.models import Lot
         lot = Lot.query.get(kwargs['lot_id'])
 
-        if lot and lot.owner_id == request.oauth.user.id:
+        if lot and (lot.owner_id == request.oauth.user.id or request.oauth.user.admin_user == 1):
+            return function(*args, **kwargs)
+        else:
+            raise InvalidUsage('You do not have permissions to edit object', status_code=404)
+
+    return wrapper
+
+
+def is_lot_not_deleted_not_finished(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+
+        from lucky_club.api.lots.models import Lot
+        lot = Lot.query.get(kwargs['lot_id'])
+
+        if lot and lot.deleted == False and lot.finished == False:
+            return function(*args, **kwargs)
+        else:
+            raise InvalidUsage('You can not edit finished ot deleted lot', status_code=404)
+
+    return wrapper
+
+
+def is_published(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+
+        from lucky_club.api.lots.models import Lot
+        lot = Lot.query.get(kwargs['lot_id'])
+
+        if lot and lot.published == True:
+            return function(*args, **kwargs)
+        else:
+            raise InvalidUsage('You can not add to favorite not published lot', status_code=404)
+
+    return wrapper
+
+
+def is_not_lot_owner_or_admin(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+
+        from lucky_club.api.lots.models import Lot
+        lot = Lot.query.get(kwargs['lot_id'])
+
+        if lot and lot.owner_id != request.oauth.user.id and request.oauth.user.admin_user == 0:
             return function(*args, **kwargs)
         else:
             raise InvalidUsage('You do not have permissions to edit object', status_code=404)
