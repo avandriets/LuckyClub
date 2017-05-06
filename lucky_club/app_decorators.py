@@ -72,7 +72,7 @@ def is_lot_owner_or_admin(function):
         if lot and (lot.owner_id == request.oauth.user.id or request.oauth.user.admin_user == 1):
             return function(*args, **kwargs)
         else:
-            raise InvalidUsage('You do not have permissions to edit object', status_code=404)
+            raise InvalidUsage('You do not have permissions to edit object', status_code=403)
 
     return wrapper
 
@@ -87,7 +87,7 @@ def is_lot_not_deleted_not_finished(function):
         if lot and lot.deleted == False and lot.finished == False:
             return function(*args, **kwargs)
         else:
-            raise InvalidUsage('You can not edit finished ot deleted lot', status_code=404)
+            raise InvalidUsage('You can not edit finished ot deleted lot', status_code=400)
 
     return wrapper
 
@@ -102,7 +102,7 @@ def is_published(function):
         if lot and lot.published == True:
             return function(*args, **kwargs)
         else:
-            raise InvalidUsage('You can not add to favorite not published lot', status_code=404)
+            raise InvalidUsage('lot does not published yes', status_code=400)
 
     return wrapper
 

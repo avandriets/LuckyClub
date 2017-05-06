@@ -38,40 +38,7 @@ def add_lot():
             db.session.rollback()
             raise InvalidUsage('Get post data error.', status_code=500)
 
-        try:
-            if 'name' not in form_data or not form_data['name'].strip():
-                db.session.rollback()
-                raise InvalidUsage('Field name is empty', status_code=400)
-            name = form_data['name']
-            new_lot.name = name
-
-            if 'description' not in form_data or not form_data['description'].strip():
-                db.session.rollback()
-                raise InvalidUsage('Field description is empty', status_code=400)
-            description = form_data['description']
-            new_lot.description = description
-
-            if 'category_id' not in form_data:
-                db.session.rollback()
-                raise InvalidUsage('Field category is empty', status_code=400)
-            category = form_data['category_id']
-            new_lot.category_id = int(category)
-
-            if 'count_participants' not in form_data:
-                db.session.rollback()
-                raise InvalidUsage('Field count_participants is empty', status_code=400)
-            count_participants = form_data['count_participants']
-            new_lot.count_participants = int(count_participants)
-
-            if 'price' not in form_data:
-                db.session.rollback()
-                raise InvalidUsage('Field price is empty', status_code=400)
-            price = form_data['price']
-            new_lot.price = float(price)
-
-        except:
-            db.session.rollback()
-            raise InvalidUsage('Wrong input data', status_code=400)
+        new_lot = lot_edit(new_lot, form_data=form_data)
 
         db.session.add(new_lot)
         db.session.commit()
@@ -99,22 +66,40 @@ def get_lots(page):
                    has_prev=lots_pages.has_prev)
 
 
-@blueprint_lots.route('/<int:lot_id>', methods=['GET'])
+@blueprint_lots.route('/<int:lot_id>', methods=['POST'])
+@my_oauth2_provider.require_oauth()
 @is_lot_exists
-def get_lot_by_id(lot_id):
+def get_users_lot_by_id(lot_id):
     """
     lot operations
     :param lot_id:
     :return:
     """
     lot = Lot.query.get(lot_id)
-    if lot.owner_id == request.oauth.user.id:
+    if lot.owner_id == request.oauth.user.id or request.oauth.user.admin_user == 1:
         return jsonify(lot.serialize)
     else:
         if (lot.finished or lot.published) and not lot.deleted:
             return jsonify(lot.serialize)
         else:
             raise InvalidUsage('You can not access to this lot', status_code=403)
+
+
+@blueprint_lots.route('/<int:lot_id>', methods=['GET'])
+# @is_lot_not_deleted_not_finished
+@is_published
+def get_lot_by_id(lot_id):
+    """
+    lot operations
+    :param lot_id:
+    :return:
+    """
+
+    lot = Lot.query.get(lot_id)
+    if lot.deleted:
+        raise InvalidUsage('You can not access to this lot', status_code=403)
+
+    return jsonify(lot.serialize)
 
 
 @blueprint_lots.route('/<int:lot_id>', methods=['PUT'])
@@ -125,7 +110,7 @@ def get_lot_by_id(lot_id):
 def edit_lot(lot_id):
     edited_lot = Lot.query.get(lot_id)
 
-    if edit_lot.editet_lot.published:
+    if edited_lot.published:
         raise InvalidUsage('You can not edit published lot.', status_code=403)
 
     try:
@@ -140,7 +125,6 @@ def edit_lot(lot_id):
 
     if request.method == 'PUT':
         edited_lot = lot_edit(edited_lot, form_data=form_data)
-        db.session.add(edited_lot)
         db.session.commit()
 
         edited_lot = Lot.query.get(edited_lot.id)
@@ -149,7 +133,6 @@ def edit_lot(lot_id):
 
 @blueprint_lots.route('/<int:lot_id>', methods=['DELETE'])
 @my_oauth2_provider.require_oauth()
-@is_lot_exists
 @is_lot_owner_or_admin
 @is_lot_not_deleted_not_finished
 def delete_lot(lot_id):
@@ -159,7 +142,6 @@ def delete_lot(lot_id):
     :return:
     """
     editet_lot = Lot.query.get(lot_id)
-    form_data = None
 
     if request.method == 'DELETE':
         count_members = Participants.query.filter_by(lot_id=editet_lot.id).count()
@@ -167,13 +149,14 @@ def delete_lot(lot_id):
             # db.session.delete(editet_lot)
             editet_lot.deleted = True
             editet_lot.published = False
+            editet_lot.finished = False
             db.session.commit()
             return jsonify(dict(success=True))
         else:
             return jsonify(dict(success=False, message='there are joined users.'))
 
 
-@blueprint_lots.route('/<int:lot_id>/add-to-favorite', methods=['POST'])
+@blueprint_lots.route('/<int:lot_id>/set-favorite', methods=['POST'])
 @my_oauth2_provider.require_oauth()
 @is_published
 def set_favorite(lot_id):
@@ -183,7 +166,7 @@ def set_favorite(lot_id):
     :return:
     """
     try:
-        favorite = Favorite.query.filter_by(lot_id=lot_id, user_id=request.oauth.user.id)
+        favorite = Favorite.query.filter_by(lot_id=lot_id, user_id=request.oauth.user.id).first()
         if favorite:
             db.session.delete(favorite)
             db.session.commit()
@@ -193,7 +176,7 @@ def set_favorite(lot_id):
             db.session.commit()
         return jsonify(dict(success=True, message='ok'))
     except:
-        return jsonify(dict(success=False, message='something went wrong'))
+        raise InvalidUsage('Something went wrong.', status_code=500)
 
 
 @blueprint_lots.route('/<int:lot_id>/join-lot', methods=['POST'])
@@ -227,6 +210,11 @@ def leave_lot(lot_id):
     :param lot_id:
     :return:
     """
+    lot = Lot.query.get(lot_id)
+
+    if lot.finished or lot.deleted:
+        raise InvalidUsage('You can not leave lot.', status_code=400)
+
     participant = Participants.query.filter_by(lot_id=lot_id, participant_id=request.oauth.user.id).first()
     if not participant:
         raise InvalidUsage('You are not participant.', status_code=400)
@@ -238,7 +226,6 @@ def leave_lot(lot_id):
 
 
 @blueprint_lots.route('/<int:lot_id>/get-messages', methods=['GET'])
-@my_oauth2_provider.require_oauth()
 @is_lot_exists
 def get_messages(lot_id):
     """
@@ -249,15 +236,11 @@ def get_messages(lot_id):
 
     lot = Lot.query.get(lot_id)
 
-    if lot.owner_id == request.oauth.user.id or request.oauth.user.admin_user == 1:
-        messages = Messages.query.filter_by(lot_id=lot_id).add()
+    if (lot.finished or lot.published) and not lot.deleted:
+        messages = Messages.query.filter_by(lot_id=lot_id).all()
         return jsonify(messages=[c.serialize for c in messages])
     else:
-        if (lot.finished or lot.published) and not lot.deleted:
-            messages = Messages.query.filter_by(lot_id=lot_id).add()
-            return jsonify(messages=[c.serialize for c in messages])
-        else:
-            raise InvalidUsage('You can not access to this lot', status_code=403)
+        raise InvalidUsage('You can not access to this lot', status_code=403)
 
 
 @blueprint_lots.route('/<int:lot_id>/add-message', methods=['POST'])
@@ -303,10 +286,10 @@ def add_message(lot_id):
         return jsonify(new_message.serialize)
 
 
-@blueprint_lots.route('/<int:lot_id>/delete-message/<int:message_id>', methods=['POST'])
+@blueprint_lots.route('/delete-message/<int:message_id>', methods=['POST'])
 @my_oauth2_provider.require_oauth()
 @is_admin_user_arg
-def delete_message(lot_id, message_id):
+def delete_message(message_id):
     """
 
     :param lot_id:
@@ -327,8 +310,11 @@ def delete_message(lot_id, message_id):
 @blueprint_lots.route('/get-favorites', methods=['GET'])
 @my_oauth2_provider.require_oauth()
 def get_favorites():
-    favorites_lots = Favorite.query.filter_by(user_id=request.oauth.user.id)
-    return jsonify(objects=[c.serialize for c in favorites_lots])
+    # favorites_lots = Favorite.query.filter_by(user_id=request.oauth.user.id).all()
+    favorites_lots = Favorite.query.filter((Favorite.user_id == request.oauth.user.id)
+                                           & ((Favorite.lot.has(published=True) | (Favorite.lot.has(finished=True))) & (Favorite.lot.has(deleted=False))))
+
+    return jsonify(objects=[c.lot.serialize for c in favorites_lots])
 
 
 @blueprint_lots.route('/<int:lot_id>/publish-lot', methods=['POST'])
@@ -350,14 +336,75 @@ def publish_lot(lot_id):
 
 @blueprint_lots.route('/<int:lot_id>/un-publish-lot', methods=['POST'])
 @my_oauth2_provider.require_oauth()
+@is_lot_owner_or_admin
 def un_publish_lot(lot_id):
     lot = Lot.query.get(lot_id)
 
     if not lot.published:
-        raise InvalidUsage('Lot already published', status_code=400)
+        raise InvalidUsage('Lot does not published yet', status_code=400)
 
     count_members = Participants.query.filter_by(lot_id=lot.id).count()
     if count_members == 0:
         lot.published = False
         db.session.commit()
         return jsonify(dict(success=True))
+
+
+@blueprint_lots.route('/<int:lot_id>/undelete', methods=['POST'])
+@my_oauth2_provider.require_oauth()
+@is_lot_exists
+@is_admin_user_arg
+def un_delete_lot(lot_id):
+    """
+    lot operations
+    :param lot_id:
+    :return:
+    """
+    edited_lot = Lot.query.get(lot_id)
+
+    if not edited_lot.deleted:
+        raise InvalidUsage('Unappropriated operation with not deleted lot', status_code=400)
+
+    if request.method == 'POST':
+        edited_lot.deleted = False
+        edited_lot.published = False
+        edited_lot.finished = False
+        db.session.commit()
+        return jsonify(dict(success=True))
+
+
+@blueprint_lots.route('/<int:lot_id>/finish', methods=['POST'])
+@my_oauth2_provider.require_oauth()
+@is_lot_exists
+@is_admin_user_arg
+def finished_lot(lot_id):
+    """
+    lot operations
+    :param lot_id:
+    :return:
+    """
+    edited_lot = Lot.query.get(lot_id)
+
+    if edited_lot.deleted or not edited_lot.published:
+        raise InvalidUsage('Unappropriated operation with not deleted lot', status_code=400)
+
+    if request.method == 'POST':
+        edited_lot.finished = True
+        db.session.commit()
+        return jsonify(dict(success=True))
+
+
+@blueprint_lots.route('/get-deleted', methods=['POST'])
+@my_oauth2_provider.require_oauth()
+def get_deleted():
+    lots = Lot.query.filter((Lot.deleted == True) & (Lot.owner == request.oauth.user))
+    return jsonify([c.serialize for c in lots])
+
+
+@blueprint_lots.route('/get-drafts', methods=['POST'])
+@my_oauth2_provider.require_oauth()
+def get_deleted():
+    lots = Lot.query.filter((Lot.published == False) & (Lot.deleted == False) & (Lot.owner == request.oauth.user))
+    return jsonify([c.serialize for c in lots])
+
+# get participants

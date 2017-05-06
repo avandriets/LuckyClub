@@ -36,3 +36,5 @@ def lot_edit(edited_lot, form_data):
     except:
         db.session.rollback()
         raise InvalidUsage('Wrong input data', status_code=400)
+
+    return edited_lot

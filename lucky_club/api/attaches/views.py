@@ -27,12 +27,12 @@ def add_attach(lot_id):
     """
     lot = Lot.query.get(lot_id)
 
-    if lot.published:
-        raise InvalidUsage('Lot already published', status_code=400)
+    if lot.published or lot.deleted or lot.finished:
+        raise InvalidUsage('Lot already published, deleted or finished', status_code=400)
 
     if request.method == 'POST':
 
-        new_lot = Attachment(user=request.oauth.user, lot_id=lot_id)
+        new_attach = Attachment(user=request.oauth.user, lot_id=lot_id)
 
         try:
             if hasattr(request, 'data') and request.content_type == 'application/json':
@@ -63,7 +63,7 @@ def add_attach(lot_id):
                     file.filename = name
 
                 filename = uploaded_photos.save(file)
-                new_lot.file_url = filename
+                new_attach.picture = filename
 
         except UploadNotAllowed:
             db.session.rollback()
@@ -73,13 +73,13 @@ def add_attach(lot_id):
                 db.session.rollback()
                 raise InvalidUsage('Field description is empty', status_code=400)
             description = form_data['description']
-            new_lot.description = description
+            new_attach.description = description
 
-        db.session.add(new_lot)
+        db.session.add(new_attach)
         db.session.commit()
 
-        new_lot = Lot.query.get(new_lot.id)
-        return jsonify(new_lot.serialize)
+        new_attach = Attachment.query.get(new_attach.id)
+        return jsonify(new_attach.serialize)
 
 
 @blueprint_attachments.route('/delete-attach/<int:attachment_id>', methods=['DELETE'])
@@ -90,5 +90,14 @@ def delete_attach(attachment_id):
     :param attachment_id:
     :return:
     """
-    # TODO implement delete_attach
-    pass
+    attachment = Attachment.query.get(attachment_id)
+    lot = attachment.lot
+    if lot.owner_id == request.oauth.user.id or request.oauth.user.admin_user == 1:
+        if lot and not lot.published and not lot.deleted and not lot.finished:
+            db.session.delete(attachment)
+            db.session.commit()
+            return jsonify(dict(success=True))
+        else:
+            raise InvalidUsage('you can not edit unpublished lot', status_code=400)
+    else:
+        raise InvalidUsage('do not have permissions', status_code=400)

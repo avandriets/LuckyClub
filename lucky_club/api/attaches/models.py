@@ -10,7 +10,7 @@ class Attachment(db.Model):
 
     id = Column(Integer, primary_key=True)
     description = Column(String(255), nullable=True)
-    file_url = Column(String(500), nullable=False)
+    picture = Column(String(500), nullable=False)
     lot_id = Column(ForeignKey('Lot.id'))
     lot = relationship('Lot', backref=db.backref('images_of_lot', lazy='select'))
     user_id = Column(ForeignKey('User.id'))
@@ -19,12 +19,21 @@ class Attachment(db.Model):
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     @property
+    def picture_url(self):
+        if self.picture:
+            from lucky_club.lucky_club import uploaded_photos
+            return uploaded_photos.url(self.picture)
+        else:
+            return ""
+
+    @property
     def serialize(self):
         """Return object data in easily serializeable format"""
         return {
             'id': self.id,
             'description': self.description,
-            'file_url': self.file_url,
+            'picture': self.picture,
+            'picture_url': self.picture_url,
             'lot_id': self.lot_id,
             'user_id': self.user_id,
             'created_at': self.created_at,
