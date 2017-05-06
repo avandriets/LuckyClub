@@ -1271,7 +1271,5 @@ class LotsTest(BasicTests):
             rv = self.delete_attach(self.ordinary_user_data, pictures[1]['id'], content_type='application/json')
             self.assertEqual(rv.status_code, 400, rv.data)
 
-
-# TODO get unpublished
-# TODO get deleted
-# TODO get without deleted and unpublished
+# TODO add test get-drafts
+# TODO add get-deleted

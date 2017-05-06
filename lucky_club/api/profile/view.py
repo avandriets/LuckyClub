@@ -79,6 +79,16 @@ def me():
         raise InvalidUsage('Method does not support.', status_code=405)
 
 
+@blueprint_users.route('/<int:user_id>', methods=['GET'])
+@my_oauth2_provider.require_oauth()
+def get_user_info(user_id):
+    profile = Profile.query.get(user_id)
+    if profile:
+        jsonify(profile.serialize)
+    else:
+        raise InvalidUsage('Can not find user.', status_code=404)
+
+
 @blueprint_users.route('/get-balance')
 @my_oauth2_provider.require_oauth()
 def get_balance():

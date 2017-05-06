@@ -403,8 +403,6 @@ def get_deleted():
 
 @blueprint_lots.route('/get-drafts', methods=['POST'])
 @my_oauth2_provider.require_oauth()
-def get_deleted():
+def get_drafts():
     lots = Lot.query.filter((Lot.published == False) & (Lot.deleted == False) & (Lot.owner == request.oauth.user))
     return jsonify([c.serialize for c in lots])
-
-# get participants

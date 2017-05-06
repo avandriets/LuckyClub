@@ -42,7 +42,8 @@ class Lot(db.Model):
             'owner_id': self.owner_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
-            'pictures': [c.serialize for c in self.images_of_lot]
+            'pictures': [c.serialize for c in self.images_of_lot],
+            'owner_profile': self.owner.user_profile.serialize
         }
 
 
