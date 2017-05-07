@@ -73,3 +73,29 @@ access_token : [YOUR TOKEN]
 export FLASK_APP=lucky_club/lucky_club.py
 flask initdb
 ```
+
+## How to pun in docker envirinment
+1. Build image
+```
+docker build -t luckylubimage .
+```
+2. Run container in atache mode
+```
+docker run -p 4000:8000 luckylubimage
+```
+3. Run container in deatach mode
+```
+docker run --detach=true -p 4000:8000 luckylubimage
+```
+
+ps
+```
+# list of containers
+$ docker ps
+
+# stop container
+$ docker stop f289dd0d0ccc
+
+# remove container
+$ docker rm
+```

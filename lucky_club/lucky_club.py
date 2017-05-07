@@ -173,12 +173,18 @@ def production_sign_in(token):
     from lucky_club.users_manager.models import User
     account = User.query.filter_by(firebase_user_id=token['sub']).one_or_none()
     if account is None:
+        users_count = User.query.count()
+
         account = User(firebase_user_id=token['sub'])
         account.email = token['email']
         account.email_verified = token['email_verified']
         account.name = token.get('name')
         account.photo_url = token.get('picture')
-        account.admin_user = 0
+
+        if users_count == 0:
+            account.admin_user = 1
+        else:
+            account.admin_user = 0
 
         from lucky_club.database import db
         db.session.add(account)
