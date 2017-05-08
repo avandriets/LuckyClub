@@ -21,7 +21,7 @@ def get_applications_list(user_param):
 def create_application():
     user = current_user()
 
-    context = {'user': user}
+    context = dict(user=user)
 
     if request.method == 'POST':
         try:
