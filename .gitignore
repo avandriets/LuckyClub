@@ -22,7 +22,6 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -78,20 +77,32 @@ target/
 # celery beat schedule file
 celerybeat-schedule
 
-# SageMath parsed files
-*.sage.py
-
 # dotenv
 .env
 
 # virtualenv
-.venv
+.venv/
 venv/
 ENV/
-app.db
+
 # Spyder project settings
 .spyderproject
 
 # Rope project settings
 .ropeproject
 
+.DS_Store
+.idea/
+EnvFlaskFirebase/
+app.db
+app/.DS_Store
+app/__pycache__/
+app/api/users/__pycache__/
+app/flask_firebase/__pycache__/
+app/main_page/__pycache__/
+app/my_oauth2_provider/__pycache__/
+app/users_manager/__pycache__/
+migrations/__pycache__/
+migrations/versions/__pycache__/
+lucky_club/static/media/
+lucky_club/tests/images/
