@@ -198,9 +198,9 @@ def production_sign_in(token):
         db.session.add(bank_account)
 
         db.session.commit()
-    else:
-        if account.admin_user == 0 or account.blocked:
-            return False
+
+    if account.admin_user == 0 or account.blocked:
+        return False
 
     login_user(account)
 
