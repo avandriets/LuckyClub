@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, redirect, render_template
+from flask_cors import CORS
 from flask_login import login_user, logout_user, LoginManager
 
 from lucky_club.database import db
@@ -19,6 +20,7 @@ db.init_app(app)
 
 app.json_encoder = CustomDecimalJSONEncoder
 
+CORS(app)
 csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
 auth = FirebaseAuth(app)
