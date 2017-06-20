@@ -192,7 +192,8 @@ def production_sign_in(token):
         db.session.add(account)
 
         from lucky_club.api.profile.models import Profile
-        profile = Profile(user=account)
+        profile = Profile(user=account, screen_name = account.name)
+        profile.screen_name = account.name
         db.session.add(profile)
 
         from lucky_club.api.account.models import Account

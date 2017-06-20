@@ -101,7 +101,7 @@ class MyOauth2Provider(OAuth2Provider, JwtParser):
             db.session.add(account)
 
             from lucky_club.api.profile.models import Profile
-            profile = Profile(user=account)
+            profile = Profile(user=account, screen_name = account.name)
             db.session.add(profile)
 
             from lucky_club.api.account.models import Account

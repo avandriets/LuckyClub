@@ -9,6 +9,7 @@ class Profile(db.Model):
     __tablename__ = 'Profile'
 
     id = Column(Integer, primary_key=True)
+    screen_name = Column(String(255), nullable=True)
     first_name = Column(String(255), nullable=True)
     last_name = Column(String(255), nullable=True)
     photo_file_name = Column(String(500), nullable=True)
@@ -30,6 +31,7 @@ class Profile(db.Model):
         """Return object data in easily serializeable format"""
         return {
             'id': self.id,
+            'screen_name': self.screen_name,
             'first_name': self.first_name,
             'last_name': self.last_name,
             'photo_url': self.photo_url,
