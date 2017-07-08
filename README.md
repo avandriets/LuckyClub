@@ -72,6 +72,10 @@ access_token : [YOUR TOKEN]
 ```
 export FLASK_APP=lucky_club/lucky_club.py
 flask initdb
+
+or
+
+../env/bin/python3 -m flask initdb
 ```
 
 ## How to pun in docker envirinment
