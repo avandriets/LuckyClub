@@ -11,8 +11,8 @@ class User(UserMixin, db.Model):
     __tablename__ = 'User'
 
     id = Column(Integer, primary_key=True)
-    firebase_user_id = Column(Text, unique=True)
-    email = Column(Text, unique=True, nullable=False)
+    firebase_user_id = Column(String(200), unique=True)
+    email = Column(String(100), unique=True, nullable=False)
     email_verified = Column(Boolean, default=False, nullable=False)
     name = Column(Text)
     photo_url = Column(Text)

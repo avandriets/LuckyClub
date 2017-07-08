@@ -11,7 +11,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # Define the database - we are working with
 # SQLite for this example
 # SQLALCHEMY_DATABASE_URI = 'postgresql://catalog:W>HD;@Zq7tnY3BQA@localhost/item_catalog'
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'app.db')
+# SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'app.db')
+SQLALCHEMY_DATABASE_URI = 'mysql://luckyadmin:Lucky!1QweZxc@localhost:3306/luckybase'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 DATABASE_CONNECT_OPTIONS = {}
 
