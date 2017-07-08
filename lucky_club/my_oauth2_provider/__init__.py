@@ -99,8 +99,8 @@ class MyOauth2Provider(OAuth2Provider, JwtParser):
             account.photo_url = token.get('picture')
 
             # TODO change in prod system
-            account.admin_user = 1
-            # account.admin_user = 0
+            # account.admin_user = 1
+            account.admin_user = 0
             db.session.add(account)
 
             from lucky_club.api.profile.models import Profile

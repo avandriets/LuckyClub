@@ -184,11 +184,11 @@ def production_sign_in(token):
         account.photo_url = token.get('picture')
 
         # TODO change in prod system
-        account.admin_user = 1
-        # if users_count == 0:
-        #     account.admin_user = 1
-        # else:
-        #     account.admin_user = 0
+        # account.admin_user = 1
+        if users_count == 0:
+            account.admin_user = 1
+        else:
+            account.admin_user = 0
 
         from lucky_club.database import db
         db.session.add(account)
