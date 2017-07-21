@@ -11,6 +11,7 @@ class Lot(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     description = Column(Text)
+    full_description = Column(Text)
     category_id = Column(ForeignKey('Category.id'))
     category = relationship('Category', backref=db.backref('lots_of_category', lazy='select'))
     owner_id = Column(ForeignKey('User.id'))
@@ -20,6 +21,7 @@ class Lot(db.Model):
     deleted = Column(Boolean, default=False, nullable=False)
     winner_id = Column(ForeignKey('User.id'))
     winner = relationship('User', backref=db.backref('user_winner', lazy='select'), foreign_keys='Lot.winner_id')
+    recommend = Column(Boolean, default=False, nullable=False)
     count_participants = Column(Integer, nullable=False)
     price = Column(Numeric(8, 2), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -32,6 +34,7 @@ class Lot(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
+            'full_description': self.full_description,
             'category_id': self.category_id,
             'published': self.published,
             'finished': self.finished,
@@ -40,6 +43,7 @@ class Lot(db.Model):
             'count_participants': self.count_participants,
             'price': self.price,
             'owner_id': self.owner_id,
+            'recommend': self.recommend,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'pictures': [c.serialize for c in self.images_of_lot],

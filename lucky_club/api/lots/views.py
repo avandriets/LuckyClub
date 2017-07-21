@@ -66,6 +66,24 @@ def get_lots(page):
                    has_prev=lots_pages.has_prev)
 
 
+@blueprint_lots.route('/', methods=['GET'])
+def get_lots_by_page():
+    """
+    get lots per pages
+    :param page:
+    :return:
+    """
+    lots_pages = Lot.query.filter(((Lot.finished == True) | (Lot.published == True)) & (Lot.deleted == False)) \
+        .paginate(error_out=False)
+
+    return jsonify(total_objects=lots_pages.total,
+                   total_pages=lots_pages.pages,
+                   page=lots_pages.page,
+                   objects=[c.serialize for c in lots_pages.items],
+                   has_next=lots_pages.has_next,
+                   has_prev=lots_pages.has_prev)
+
+
 @blueprint_lots.route('/<int:lot_id>', methods=['POST'])
 @my_oauth2_provider.require_oauth()
 @is_lot_exists
