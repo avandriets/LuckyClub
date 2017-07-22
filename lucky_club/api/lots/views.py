@@ -428,7 +428,7 @@ def get_drafts():
 
 @blueprint_lots.route('/get-recommend', methods=['POST'])
 @my_oauth2_provider.require_oauth()
-def get_drafts():
+def get_recommend():
     lots = Lot.query.filter((Lot.recommend == True) & (Lot.published == True) & (Lot.deleted == False) & (Lot.owner == request.oauth.user))
     return jsonify([c.serialize for c in lots])
 
