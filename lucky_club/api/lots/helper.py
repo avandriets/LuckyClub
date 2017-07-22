@@ -16,6 +16,12 @@ def lot_edit(edited_lot, form_data):
         description = form_data['description']
         edited_lot.description = description
 
+        if 'full_description' not in form_data or not form_data['full_description'].strip():
+            db.session.rollback()
+            raise InvalidUsage('Field full_description is empty', status_code=400)
+        full_description = form_data['full_description']
+        edited_lot.full_description = full_description
+
         if 'category_id' not in form_data:
             db.session.rollback()
             raise InvalidUsage('Field category is empty', status_code=400)

@@ -424,3 +424,25 @@ def get_deleted():
 def get_drafts():
     lots = Lot.query.filter((Lot.published == False) & (Lot.deleted == False) & (Lot.owner == request.oauth.user))
     return jsonify([c.serialize for c in lots])
+
+
+@blueprint_lots.route('/get-recommend', methods=['POST'])
+@my_oauth2_provider.require_oauth()
+def get_drafts():
+    lots = Lot.query.filter((Lot.recommend == True) & (Lot.published == True) & (Lot.deleted == False) & (Lot.owner == request.oauth.user))
+    return jsonify([c.serialize for c in lots])
+
+
+@blueprint_lots.route('/<int:lot_id>/set-recommend', methods=['POST'])
+@my_oauth2_provider.require_oauth()
+@is_lot_not_deleted_not_finished
+@is_lot_owner_or_admin
+def recommend_lot(lot_id):
+    lot = Lot.query.get(lot_id)
+
+    try:
+        lot.recommend = not lot.recommend
+        db.session.commit()
+        return jsonify(dict(success=True, message='ok'))
+    except:
+        raise InvalidUsage('Wrong input data', status_code=400)
