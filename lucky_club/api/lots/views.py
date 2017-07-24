@@ -445,3 +445,10 @@ def recommend_lot(lot_id):
         return jsonify(dict(success=True, message='ok'))
     except:
         raise InvalidUsage('Wrong input data', status_code=400)
+
+
+@blueprint_lots.route('/users_lot', methods=['POST'])
+@my_oauth2_provider.require_oauth()
+def get_users_lots():
+    lots = Lot.query.join(Participants, Lot.id == Participants.lot_id).filter((Lot.published == True) & (Lot.deleted == False))
+    return jsonify([c.serialize for c in lots])

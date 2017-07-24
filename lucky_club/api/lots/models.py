@@ -28,6 +28,11 @@ class Lot(db.Model):
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     @property
+    def count_joined(self):
+        count_members = Participants.query.filter_by(lot_id=self.id).count()
+        return count_members
+
+    @property
     def serialize(self):
         """Return object data in easily serializeable format"""
         return {
@@ -47,7 +52,8 @@ class Lot(db.Model):
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'pictures': [c.serialize for c in self.images_of_lot],
-            'owner_profile': self.owner.user_profile.serialize
+            'owner_profile': self.owner.user_profile.serialize,
+            'count_joined': self.count_joined
         }
 
 
