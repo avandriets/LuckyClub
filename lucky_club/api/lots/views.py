@@ -450,5 +450,5 @@ def recommend_lot(lot_id):
 @blueprint_lots.route('/users_lot', methods=['POST'])
 @my_oauth2_provider.require_oauth()
 def get_users_lots():
-    lots = Lot.query.join(Participants, Lot.id == Participants.lot_id).filter((Lot.published == True) & (Lot.deleted == False))
+    lots = Lot.query.join(Participants, Lot.id == Participants.lot_id).filter((Lot.published == True) & (Lot.deleted == False) & (Participants.participant == request.oauth.user))
     return jsonify([c.serialize for c in lots])
