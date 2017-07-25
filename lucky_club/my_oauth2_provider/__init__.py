@@ -36,7 +36,9 @@ class MyOauth2Provider(OAuth2Provider, JwtParser):
             db.session.commit()
 
         expires_in = token.pop('expires_in')
-        expires = datetime.utcnow() + timedelta(seconds=expires_in)
+        # expires = datetime.utcnow() + timedelta(seconds=expires_in)
+        # TODO change when implement token refresh
+        expires = datetime.utcnow() + timedelta(3600*24)
 
         tok = Token(
             access_token=token['access_token'],
