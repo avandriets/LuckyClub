@@ -41,8 +41,8 @@ class Profile(db.Model):
             'user_id': self.user_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
-            'email': self.updated_at,
-            'bank_card': self.updated_at,
-            'phone': self.updated_at,
+            'email': self.email,
+            'bank_card': self.bank_card,
+            'phone': self.phone,
             'admin_user': self.user.admin_user
         }
