@@ -55,8 +55,23 @@ def get_lots(page):
     :return:
     """
 
-    lots_pages = Lot.query.filter(((Lot.finished == True) | (Lot.published == True)) & (Lot.deleted == False)) \
-        .paginate(page=page, per_page=current_app.config['PER_PAGE'], error_out=False)
+    category = None
+
+    if request:
+        try:
+            category = int(request.args.get('category', None))
+        except (TypeError, ValueError):
+            raise InvalidUsage('You can not access to this lot', status_code=404)
+
+    from lucky_club.api.categories.models import Category
+    category_obj = Category.query.get(category)
+
+    if category and category_obj:
+        lots_pages = Lot.query.filter(((Lot.finished == True) | (Lot.published == True)) & (Lot.deleted == False) & (Lot.category_id == category)) \
+            .paginate(page=page, per_page=current_app.config['PER_PAGE'], error_out=False)
+    else:
+        lots_pages = Lot.query.filter(((Lot.finished == True) | (Lot.published == True)) & (Lot.deleted == False)) \
+            .paginate(page=page, per_page=current_app.config['PER_PAGE'], error_out=False)
 
     return jsonify(total_objects=lots_pages.total,
                    total_pages=lots_pages.pages,
@@ -73,8 +88,23 @@ def get_lots_by_page():
     :param page:
     :return:
     """
-    lots_pages = Lot.query.filter(((Lot.finished == True) | (Lot.published == True)) & (Lot.deleted == False)) \
-        .paginate(error_out=False)
+    category = None
+
+    if request:
+        try:
+            category = int(request.args.get('category', None))
+        except (TypeError, ValueError):
+            raise InvalidUsage('You can not access to this lot', status_code=404)
+
+    from lucky_club.api.categories.models import Category
+    category_obj = Category.query.get(category)
+
+    if category and category_obj:
+        lots_pages = Lot.query.filter(((Lot.finished == True) | (Lot.published == True)) & (Lot.deleted == False) & (Lot.category_id == category)) \
+            .paginate(page=page, per_page=current_app.config['PER_PAGE'], error_out=False)
+    else:
+        lots_pages = Lot.query.filter(((Lot.finished == True) | (Lot.published == True)) & (Lot.deleted == False)) \
+            .paginate(page=page, per_page=current_app.config['PER_PAGE'], error_out=False)
 
     return jsonify(total_objects=lots_pages.total,
                    total_pages=lots_pages.pages,

@@ -66,9 +66,25 @@ def me():
                 first_name = form_data['first_name']
                 profile.first_name = first_name
 
+            if 'screen_name' in form_data:
+                screen_name = form_data['screen_name']
+                profile.screen_name = screen_name
+
             if 'last_name' in form_data:
                 last_name = form_data['last_name']
                 profile.last_name = last_name
+
+            if 'email' in form_data:
+                email = form_data['email']
+                profile.email = email
+
+            if 'bank_card' in form_data:
+                bank_card = form_data['bank_card']
+                profile.bank_card = bank_card
+
+            if 'phone' in form_data:
+                phone = form_data['phone']
+                profile.phone = phone
 
             db.session.commit()
 

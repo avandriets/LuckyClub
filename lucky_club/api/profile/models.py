@@ -17,6 +17,9 @@ class Profile(db.Model):
     user = relationship('User', backref=db.backref('user_profile', uselist=False, lazy='select'))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+    email = Column(String(255), nullable=True)
+    bank_card = Column(String(255), nullable=True)
+    phone = Column(String(255), nullable=True)
 
     @property
     def photo_url(self):
@@ -37,5 +40,8 @@ class Profile(db.Model):
             'photo_url': self.photo_url,
             'user_id': self.user_id,
             'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'updated_at': self.updated_at,
+            'email': self.updated_at,
+            'bank_card': self.updated_at,
+            'phone': self.updated_at
         }
