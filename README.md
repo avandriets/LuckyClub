@@ -78,7 +78,7 @@ or
 ../env/bin/python3 -m flask initdb
 ```
 
-## How to pun in docker envirinment
+## How to run in docker environment
 1. Build image
 ```
 docker build -t luckylubimage .
